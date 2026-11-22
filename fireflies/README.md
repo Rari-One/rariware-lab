@@ -24,6 +24,12 @@ python3 fireflies.py --stats    # how much changes per frame
 python3 fireflies.py --seed 42  # a different, still seamless, night
 ```
 
+The animation runs on the alternate screen, so it leaves nothing in
+the scrollback, and your screen and cursor come back when it exits.
+If the terminal is too small it says so and waits for a resize; a
+larger terminal centers the artwork, and resizing mid-animation
+re-centers it.
+
 ## How it is built
 
 - Canvas: 120 × 40, 15 fps, 180 frames = 12 seconds, one seamless loop.
