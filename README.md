@@ -18,7 +18,7 @@ Not everything here needs to be exhibited. The experiments themselves are the po
 
 ## Make something
 
-Read [the creative standard](CREATIVE-STANDARD.md) for the few shared expectations around originality, clear instructions, and optional gallery-ready exports.
+Read [the creative standard](CREATIVE-STANDARD.md) for the few shared expectations around originality, clear instructions, and optional website or Lab Player exports.
 
 ## License
 
