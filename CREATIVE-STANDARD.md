@@ -32,12 +32,12 @@ A piece intended for the RariWare Lab gallery needs a compatible, self-contained
 
 For the current text-animation format, prepare:
 
-- One standalone Python 3.10+ script using only the standard library, with no network access, subprocesses, native-code execution, or dynamic code execution.
-- A `manifest.json` describing the piece and its display settings.
+- One standalone Python 3.10+ script using only the standard library, with no network access, subprocesses, native-code execution, or dynamic code execution. Its source starts with the full MIT license text and `Copyright (c) <year> Rari-One`.
+- A `manifest.json` describing the piece and its display settings. The gallery curator assigns `featured` and `order` when importing; experiment authors need not reserve display positions.
 - A deterministic `frames.json` exported by the script, with matching dimensions, frame count, and timing.
 - A useful still frame and a plain-language description of the artwork.
 
-The gallery-ready script should run as a terminal animation by default, support `--still` and `--still --no-color`, and emit the reproducible frames JSON with `--export`. Keep its output in UTF-8 and make it runnable without downloading extra dependencies.
+The gallery-ready script should run as a terminal animation by default, support `--still` and `--still --no-color`, and emit the reproducible frames JSON with `--export` in under 60 seconds. Keep its output in UTF-8 and make it runnable without downloading extra dependencies.
 
 ### Current gallery compatibility limits
 
@@ -56,7 +56,7 @@ The gallery-ready script should run as a terminal animation by default, support 
 
 Gallery text uses single-width characters supported by the display font: ordinary ASCII and selected Latin, line-drawing, block, geometric, arrow, and mathematical symbols. Avoid emoji, wide characters, and control characters in gallery exports. Use lowercase `#rrggbb` colors and readable contrast against a near-black background.
 
-The export uses `format: "rariware-lab-frames"` with `cols`, `rows`, `fps`, `loop`, `palette`, `frames`, and `colors`. Each frame is a newline-separated grid with exactly the declared width and height. Each corresponding color grid uses one base-36 palette index (`0-9`, `a-z`) per cell. The manifest uses `format: "rariware-lab-manifest"` and records `id`, `title`, `description`, `alt`, `source`, `frames`, `cols`, `rows`, `fps`, `frameCount`, `stillFrame`, `license`, `copyright`, `featured`, and `order`.
+The export must be serialized exactly as `json.dumps(data, ensure_ascii=False) + "\\n"` in UTF-8; the committed file must match the script's `--export` output byte for byte. Each frame and color grid has no trailing newline within its rows. Use only the eight declared frame fields. Solid filled regions should use the seamless block characters `▁▂▃▄▅▆▇█▀` rather than font glyphs that can leave dark gaps. Overlay snow, sparkles, and similar effects without erasing the underlying solid surface.\n\nThe exact supported gallery character set is below (a single line, including the initial ordinary space and a nonbreaking space after `~`). It is an export compatibility reference, not a restriction on independent experiments:\n\n```text\n !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ─━│┃┄┅┆┇┈┉┊┋┌┍┎┏┐┑┒┓└┕┖┗┘┙┚┛├┝┞┟┠┡┢┣┤┥┦┧┨┩┪┫┬┭┮┯┰┱┲┳┴┵┶┷┸┹┺┻┼┽┾┿╀╁╂╃╄╅╆╇╈╉╊╋╌╍╎╏═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╭╮╯╰╱╲╳╴╵╶╷╸╹╺╻╼╽╾╿▀▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟■□▪▫▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊○◌◎●◔◕◦◧◨◩◪◫◯◶←↑→↓↔↕↖↗↘↙↝↞↠↢↣↥↦↧↩↪↭↾⇉⇐⇑⇒⇓⇔⇛⇞⇟⇥⇧⇨⇪∀∁∂∃∄∅∆∇∈∉∊∋∌∎∏∐∑−∓∕∘∙√∞∣∤∥∧∨∩∪∫∴∵∶∷∸∹∼∾≃≅≇≈≉≋≍≔≗≟≠≡≢≣≤≥≪≫≬≭≮≯≰≱≲≳≺≻≼⊂⊃⊄⊅⊆⊇⊈⊉⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊴⊸⊻⊼⊽⋂⋃⋄⋆⋈⋉⋊⋎⋐⋢⋮⋯⋰⋱‐–—‖‘’‚‛“”„‟†‡•․…\n```\n\nThe export uses `format: "rariware-lab-frames"` with `cols`, `rows`, `fps`, `loop`, `palette`, `frames`, and `colors`. Each frame is a newline-separated grid with exactly the declared width and height. Each corresponding color grid uses one base-36 palette index (`0-9`, `a-z`) per cell. The manifest uses `format: "rariware-lab-manifest"` and records `id`, `title`, `description`, `alt`, `source`, `frames`, `cols`, `rows`, `fps`, `frameCount`, `stillFrame`, `license`, `copyright`, `featured`, and `order`. For a proposed gallery manifest, use placeholder values for `featured` and `order`; the curator sets final values when the piece is selected. `id` must be 2–32 lowercase letters, digits or hyphens; `title` 1–40 characters, `description` 10–300, and `alt` 20–300. `stillFrame` must point to a nonblank representative frame. No additional fields are permitted.
 
 An experiment that exceeds these limits is still welcome as an independent work. Gallery inclusion is selective and may require an adapted export.
 
