@@ -1,0 +1,7 @@
+# Keep the originals byte-identical to the listings inside the approved artworks.
+carbon-paper/carbon.go -text diff
+endpaper-tide/tide.mjs -text diff
+twenty-fifth-window/music.py -text diff
+twenty-fifth-window/scene.py -text diff
+umbra-choir/sky.py -text diff
+umbra-choir/score.py -text diff
