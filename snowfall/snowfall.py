@@ -8,9 +8,11 @@
 # The scene is layered like a painting, near to far: two big snow-loaded
 # pines frame the view, a lantern burns warm on the right, a snowfield
 # catches the moonlight in the middle, and behind it two treelines recede
-# into haze under a full moon. Snow falls in three depths — far flakes
-# drift small and slow, near flakes are big, fast, and sway wide in the
-# wind. Nothing here is random per run: one seed makes one night.
+# into haze under a full moon. The lantern's light falls softly on the
+# snow, the nearby trees, and the flakes drifting through it. Snow falls
+# in three depths — far flakes drift small and slow, near flakes are big,
+# fast, and sway wide in the wind. Nothing here is random per run: one
+# seed makes one night.
 #
 # Terminal presentation: the animation runs on the alternate screen, so it
 # leaves no frames in the scrollback, and the original screen and cursor
@@ -69,7 +71,7 @@ TAU = 2 * math.pi
 NEED_COLS, NEED_ROWS = COLS, ROWS + 1   # the artwork, plus one footer line
 
 # One palette for the terminal and the browser. Each cell stores an index into it.
-# 33 colours, inside the gallery's 36-colour limit.
+# 35 colours, inside the gallery's 36-colour limit.
 PALETTE = [
     "#000000",                                                        # 0  blank
     "#0a0f1e", "#101a2e", "#182742", "#1e2f52",                      # 1-4 sky, horizon haze
@@ -84,6 +86,7 @@ PALETTE = [
     "#ffb84d", "#ff9a1e", "#ffe9b8", "#2a2118",                      # 26-29 lantern flame, frame
     "#c98a2e", "#7a5a28",                                            # 30-31 lantern glow
     "#c9d6ea",                                                        # 32 mid flakes
+    "#ffd98a", "#e8a54d",                                            # 33-34 warm lantern light
 ]
 CODE = "0123456789abcdefghijklmnopqrstuvwxyz"
 
@@ -310,31 +313,49 @@ class Snowfall:
                 if 0 <= row < rows:
                     ch[row][x0], co[row][x0] = "┃", 24
 
-        # Faint glints on the snow, coming and going.
+        # Faint glints on the snow, coming and going. A glint is light on
+        # a surface, not a hole in it: the cell keeps its shape and
+        # brightens, so the snow stays continuous where a glint passes.
         for gx, gy, ph in self.glints:
             tw = 0.5 + 0.5 * math.cos(TAU * 2 * t + ph)
             if tw > 0.7 and ch[gy][gx] != " ":
-                ch[gy][gx], co[gy][gx] = "·", 19
+                co[gy][gx] = 19
 
-        # The lantern post and its warm light, flickering gently.
+        # The lantern post and its warm light, flickering gently. The
+        # light is a radial falloff, not a painted shape: a hot core
+        # under the lantern, warm highlights around it, and a faint wash
+        # that fades out with a soft, irregular edge. The whole pool
+        # breathes a little with the flame.
         lx, ly = self.lantern
         flick = 0.85 + 0.15 * math.sin(TAU * 3 * t + 1.2)
-        # Warm pool on the snow below it, fading with distance — wide and
-        # shallow, a small bright core and a faint wash around it.
+        reach = 0.90 + 0.20 * (flick - 0.70) / 0.30   # 0.90 to 1.10
+        # Warm pool on the snow below it, wide and shallow. The
+        # brightest light is a small hot spot right under the lantern;
+        # the rest falls away through amber to a faint wash, so the pool
+        # reads as light, not a painted shape.
         for y in range(gr, rows):
-            for x in range(lx - 7, lx + 8):
+            for x in range(lx - 9, lx + 10):
                 if not (0 <= x < cols) or ch[y][x] == " ":
                     continue
-                d = ((x - lx) / 7.0) ** 2 + ((y - (gr + 2)) / 2.0) ** 2
-                if d <= 0.25:
-                    co[y][x] = 30
+                d = math.sqrt(((x - lx) / 7.0) ** 2 + ((y - (gr + 2)) / 1.75) ** 2) / reach
+                if d <= 0.12:
+                    co[y][x] = 28
+                elif d <= 0.3:
+                    co[y][x] = 33
+                elif d <= 0.55:
+                    co[y][x] = 34
+                elif d <= 0.8:
+                    co[y][x] = 26
                 elif d <= 1.0:
+                    co[y][x] = 30
+                elif d <= 1.25 and (x * 73 + y * 149 + x * y * 7) % 5 < 3:
                     co[y][x] = 31
         # The post stands in front of the treeline and the snow, so it
         # draws over whatever is behind it; the lantern body, drawn next,
-        # draws over the post in turn.
+        # draws over the post in turn. The post is warm near the flame
+        # and darkens as it runs down into the snow.
         for y in range(ly + 2, rows):
-            ch[y][lx], co[y][lx] = "┃", 25
+            ch[y][lx], co[y][lx] = "┃", 30 if y < ly + 4 else 25
         # Crossbar the lantern hangs from.
         for dx in (-2, -1, 0, 1, 2):
             if 0 <= lx + dx < cols:
@@ -350,28 +371,71 @@ class Snowfall:
                         ch[y][lx + dx], co[y][lx + dx] = "█", 28
                     else:
                         ch[y][lx + dx], co[y][lx + dx] = "█", 29
-        # A soft halo around the lantern, brighter when the flame is up.
-        if flick > 0.88:
-            for dx, dy in ((2, 2), (-2, 2), (2, 3), (-2, 3), (0, 1), (0, 5)):
-                nx, ny = lx + dx, ly + dy
-                if 0 <= nx < cols and 0 <= ny < rows and ch[ny][nx] == " ":
-                    ch[ny][nx], co[ny][nx] = "·", 28
+        # Light catching the nearby trees: only the snow surfaces — the
+        # snow lines on the boughs, the treeline's snow caps, the pine
+        # tips — warm up near the lantern. The dark foliage stays dark,
+        # or the trees stop being trees and turn into yellow shapes.
+        for y in range(ly - 4, gr):
+            for x in range(lx - 14, lx + 15):
+                if not (0 <= x < cols and 0 <= y < rows):
+                    continue
+                if not ((ch[y][x] == "▀") or (ch[y][x] in ("█", "▲") and co[y][x] == 19)):
+                    continue
+                d = math.hypot((x - lx) * 0.53, y - (ly + 3)) / reach
+                if d < 4:
+                    co[y][x] = 33
+                elif d < 5.5:
+                    co[y][x] = 34
+                elif d < 7:
+                    co[y][x] = 31
+        # A soft glow in the air around the lantern, brighter when the
+        # flame is up. It only ever fills empty cells, so it never erases
+        # anything behind it.
+        for y in range(ly - 4, ly + 11):
+            for x in range(lx - 11, lx + 12):
+                if not (0 <= x < cols and 0 <= y < rows) or ch[y][x] != " ":
+                    continue
+                d = math.hypot((x - lx) * 0.53, y - (ly + 3)) / reach
+                if d < 2.5 and (x * 73 + y * 149) % 3 < 2:
+                    ch[y][x], co[y][x] = "░", 28
+                elif d < 4.5 and (x * 73 + y * 149) % 3 < 2:
+                    ch[y][x], co[y][x] = "░", 33
+                elif d < 7 and (x * 73 + y * 149) % 4 < 2:
+                    ch[y][x], co[y][x] = "·", 31
 
         # Snowflakes, falling through the whole frame and wrapping back
         # to the top. Larger flakes fall faster and sway wider, and the
-        # whole fall breathes with one slow gust per loop.
+        # whole fall breathes with one slow gust per loop. A flake that
+        # lands on the landscape does not erase it: the cell keeps its
+        # shape and takes the flake's colour, so the snow and trees stay
+        # continuous instead of going dark where a flake passes. On
+        # empty sky the flake draws as itself. Flakes near the lantern
+        # catch its light and fall warm.
         gust = 1.0 + 0.5 * math.sin(TAU * t)
         for x0, y0, fall, sway, ph, size, amp in self.flakes:
             y = (y0 + fall * t * rows) % rows
             x = x0 + round(amp * gust * math.sin(TAU * sway * t + ph))
             xi, yi = int(x) % cols, int(y)
+            dl = math.hypot((xi - lx) * 0.53, yi - (ly + 3)) / reach
             if size == 2:
                 glyph, col = "*", 7
+                warm = (28, 33, 34)
             elif size == 1:
                 glyph, col = "•", 32
+                warm = (33, 34, 30)
             else:
                 glyph, col = "·", 21
-            ch[yi][xi], co[yi][xi] = glyph, col
+                warm = (34, 30, 31)
+            if dl < 4:
+                col = warm[0]
+            elif dl < 7:
+                col = warm[1]
+            elif dl < 11:
+                col = warm[2]
+            if ch[yi][xi] == " ":
+                ch[yi][xi], co[yi][xi] = glyph, col
+            else:
+                co[yi][xi] = col
 
         return ["".join(r) for r in ch], ["".join(CODE[c] for c in r) for r in co]
 
