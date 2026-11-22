@@ -2,72 +2,22 @@
 
 **No roadmap. Just because.**
 
-This is a workshop for original experiments. Curiosity is a sufficient reason to make something.
+A program that makes one sound, draws a strange shape, or does something you simply wanted to try belongs here. Choose any language, subject, style, or pace. An experiment can stand on its own, whether or not it ever appears in a gallery or player.
 
-## 1. Make things freely
+## Give the next person a way in
 
-Create text art, terminal animations, generative scenes, playful utilities, odd little programs, or something that doesn't fit a category. There are no required subjects, seasons, schedules, or product goals.
+Give each experiment its own descriptively named directory at the repository root. Include the original source, the assets or scripts needed to run or regenerate it, and a short README. Tell someone opening the folder for the first time what they can expect to see, hear, or do. List any dependencies, give the commands to try it, and say where to find the result. Mention any network access, files written, or other side effects they should expect. If a seed or input matters, include it. A piece that deliberately changes on every run is welcome too.
 
-Experiment with scale, timing, color, movement, and technique. A piece does not have to be suitable for a gallery to belong here.
+For examples, follow a swallow from Go source to a moving print in [Carbon Paper](carbon-paper/), or see how JavaScript combs ribbons of color in [Endpaper Tide](endpaper-tide/). Two Python pieces share musical timing with their pictures: [Umbra Choir](umbra-choir/) turns notes into stars, and [The Twenty-Fifth Window](twenty-fifth-window/) lights a Christmas tree to a waltz.
 
-## 2. Make it original
+## Choose how to share it
 
-Create original code and artwork. Do not copy someone else's work and present it as your own. Respect third-party licenses, credit requirements, and permissions. Do not include secrets, personal data, or material you lack the right to distribute.
+**Independent experiment.** The source, its README, and any needed assets are enough. A still, recording, or other preview can help people decide whether to try it. Gallery exports and player packages are optional.
 
-## 3. Keep it understandable and runnable
+**Website gallery.** The website displays a still or plays a silent text animation from exported data. Its submission format pairs a manifest and deterministic frame JSON with a downloadable standalone Python script. The site checks that the script reproduces the committed export byte for byte. Consult the [website gallery specification](https://github.com/Rari-One/rariware/blob/main/docs/LAB-STANDARD.md) for the schemas, UTF-8 serialization, supported characters, and limits on size, timing, and redraws. If you cannot access the website repository, ask a maintainer for the current specification. Its validator also checks for a Rari-One copyright notice. If your work carries a different notice, keep it and raise that issue with the gallery maintainer.
 
-Give each experiment its own descriptively named folder. Include a short README explaining what it does, how to run it, and any dependencies or unusual requirements.
+**Lab Player.** Go, JavaScript, Python, or another language can generate a compatible `.rwl` file. Compatibility depends on the data you export. A package supplies a grid of colored characters for each frame and can include stereo audio, browsable source, and markers that connect particular frames to source lines. The player validates packages, reads their declared data locally, and plays them offline. Source listings are displayed and never executed. See the [package specification and first-artwork example](player/PACKAGES.md).
 
-Prefer straightforward, portable code when practical. Python is welcome, but a creative experiment may use other tools or libraries. If it needs network access, external services, or other side effects, disclose that clearly and avoid surprising behavior.
+## Bringing your work to the Lab
 
-## 4. Keep the source with the work
-
-Preserve the original source and any assets needed to reproduce the result. Generated previews or exports can accompany the source, but should not replace it.
-
-For reproducible work, document any seeds, settings, or inputs needed to recreate the result. Experiments that intentionally vary between runs are welcome.
-
-## 5. Gallery-ready work is optional
-
-A piece intended for the RariWare Lab gallery needs a compatible, self-contained export. This is an exhibition format, **not a rule for every experiment in this repository**.
-
-For the current text-animation format, prepare:
-
-- One standalone Python 3.10+ script using only the standard library, with no network access, subprocesses, native-code execution, or dynamic code execution. Its source starts with the full MIT license text and `Copyright (c) <year> Rari-One`.
-- A `manifest.json` describing the piece and its display settings. The gallery curator assigns `featured` and `order` when importing; experiment authors need not reserve display positions.
-- A deterministic `frames.json` exported by the script, with matching dimensions, frame count, and timing.
-- A useful still frame and a plain-language description of the artwork.
-
-The gallery-ready script should run as a terminal animation by default, support `--still` and `--still --no-color`, and emit the reproducible frames JSON with `--export` in under 60 seconds. Keep its output in UTF-8 and make it runnable without downloading extra dependencies.
-
-### Current gallery compatibility limits
-
-| Property | Supported range |
-| --- | --- |
-| Width | 40–160 columns |
-| Height | 12–60 rows |
-| Width-to-height ratio | 2–6 |
-| Frame rate | 1–30 FPS |
-| Frame count | 1–900 |
-| Loop duration | Up to 60 seconds |
-| Colors | 1–36 |
-| Export size | Up to 3 MB uncompressed and 250 KB compressed |
-| Changed cells | Average at most 25% per frame; maximum 50% in any frame, including the loop boundary |
-| Redraw rate | Average at most 15,000 changed cells per second |
-
-Gallery text uses single-width characters supported by the display font: ordinary ASCII and selected Latin, line-drawing, block, geometric, arrow, and mathematical symbols. Avoid emoji, wide characters, and control characters in gallery exports. Use lowercase `#rrggbb` colors and readable contrast against a near-black background.
-
-The export must be serialized exactly as `json.dumps(data, ensure_ascii=False) + "\\n"` in UTF-8; the committed file must match the script's `--export` output byte for byte. Each frame and color grid has no trailing newline within its rows. Use only the eight declared frame fields. Solid filled regions should use the seamless block characters `▁▂▃▄▅▆▇█▀` rather than font glyphs that can leave dark gaps. Overlay snow, sparkles, and similar effects without erasing the underlying solid surface.\n\nThe exact supported gallery character set is below (a single line, including the initial ordinary space and a nonbreaking space after `~`). It is an export compatibility reference, not a restriction on independent experiments:\n\n```text\n !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ─━│┃┄┅┆┇┈┉┊┋┌┍┎┏┐┑┒┓└┕┖┗┘┙┚┛├┝┞┟┠┡┢┣┤┥┦┧┨┩┪┫┬┭┮┯┰┱┲┳┴┵┶┷┸┹┺┻┼┽┾┿╀╁╂╃╄╅╆╇╈╉╊╋╌╍╎╏═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╭╮╯╰╱╲╳╴╵╶╷╸╹╺╻╼╽╾╿▀▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟■□▪▫▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊○◌◎●◔◕◦◧◨◩◪◫◯◶←↑→↓↔↕↖↗↘↙↝↞↠↢↣↥↦↧↩↪↭↾⇉⇐⇑⇒⇓⇔⇛⇞⇟⇥⇧⇨⇪∀∁∂∃∄∅∆∇∈∉∊∋∌∎∏∐∑−∓∕∘∙√∞∣∤∥∧∨∩∪∫∴∵∶∷∸∹∼∾≃≅≇≈≉≋≍≔≗≟≠≡≢≣≤≥≪≫≬≭≮≯≰≱≲≳≺≻≼⊂⊃⊄⊅⊆⊇⊈⊉⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊴⊸⊻⊼⊽⋂⋃⋄⋆⋈⋉⋊⋎⋐⋢⋮⋯⋰⋱‐–—‖‘’‚‛“”„‟†‡•․…\n```\n\nThe export uses `format: "rariware-lab-frames"` with `cols`, `rows`, `fps`, `loop`, `palette`, `frames`, and `colors`. Each frame is a newline-separated grid with exactly the declared width and height. Each corresponding color grid uses one base-36 palette index (`0-9`, `a-z`) per cell. The manifest uses `format: "rariware-lab-manifest"` and records `id`, `title`, `description`, `alt`, `source`, `frames`, `cols`, `rows`, `fps`, `frameCount`, `stillFrame`, `license`, `copyright`, `featured`, and `order`. For a proposed gallery manifest, use placeholder values for `featured` and `order`; the curator sets final values when the piece is selected. `id` must be 2–32 lowercase letters, digits or hyphens; `title` 1–40 characters, `description` 10–300, and `alt` 20–300. `stillFrame` must point to a nonblank representative frame. No additional fields are permitted.
-
-An experiment that exceeds these limits is still welcome as an independent work. Gallery inclusion is selective and may require an adapted export.
-
-## 6. Share the work clearly
-
-Original code is MIT-licensed under the repository [LICENSE](LICENSE). Include appropriate copyright and license notices with standalone gallery scripts. Keep attribution and license notices for permitted third-party material.
-
-Do not imply that every experiment is an official application or supported product. Explain any limitations that matter to someone trying it.
-
-## 7. Keep the workshop simple
-
-Favor the experiment over process. A folder, source, and a short explanation are usually enough. No elaborate proposal, milestone, or release machinery is required.
-
-Make something interesting. Or strange. Or beautiful. Or simply because you can.
+AI-assisted experiments are welcome. When you’re ready to share, the [contribution guide](CONTRIBUTING.md) covers submitting a piece, choosing a public credit, and permissions for official publication.

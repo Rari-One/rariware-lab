@@ -18,7 +18,7 @@ Not everything here needs to be exhibited. The experiments themselves are the po
 
 ## Make something
 
-Read [the creative standard](CREATIVE-STANDARD.md) for the few shared expectations around originality, clear instructions, and optional gallery-ready exports.
+Read the [Creative Standard](CREATIVE-STANDARD.md) for how to make and share an experiment. The [contribution guide](CONTRIBUTING.md) explains how to submit it, how review works, and what permissions are needed for official publication.
 
 ## License
 
