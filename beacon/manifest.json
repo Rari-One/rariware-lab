@@ -1,0 +1,18 @@
+{
+ "format": "rariware-lab-manifest",
+ "id": "beacon",
+ "title": "Beacon",
+ "description": "A lonely lighthouse of the North Sea keeps its slow watch, drawn in text. Its lamp turns once per loop, sweeping a warm beam across the sky and laying a road of light on the water, while shooting stars cross overhead and a faint aurora breathes high above.",
+ "alt": "A lighthouse on rocks at night, its beam sweeping across a dark North Sea under stars, shooting stars, and a faint aurora.",
+ "source": "beacon.py",
+ "frames": "frames.json",
+ "cols": 120,
+ "rows": 40,
+ "fps": 15,
+ "frameCount": 180,
+ "stillFrame": 0,
+ "license": "MIT",
+ "copyright": "Copyright (c) 2026 Rari-One",
+ "featured": false,
+ "order": 4
+}
