@@ -5,6 +5,13 @@
 # for the Lab in the same contract as aurora.py: one standalone file, one
 # seamless loop, no input, no network, no sound.
 #
+# Terminal presentation: the animation runs on the alternate screen, so it
+# leaves no frames in the scrollback, and the original screen and cursor
+# come back when it exits. It checks the terminal size first — it needs
+# 120 columns by 41 rows — and waits politely for a resize if the window
+# is too small. A larger terminal centers the artwork, and resizing
+# mid-animation re-centers it.
+#
 # Run it in a terminal with 24-bit color (Ctrl+C to stop):
 #     python3 fireflies.py
 # Other modes:
@@ -12,8 +19,9 @@
 #     python3 fireflies.py --export           print the whole loop as JSON (what rariware.com/lab/ plays)
 #     python3 fireflies.py --stats            print how much of the picture changes per frame
 #
-# The terminal needs a font with box-drawing and block characters
-# (most do) and should be at least 120 columns by 41 rows.
+# The terminal needs a font with box-drawing and block characters —
+# JetBrains Mono, the gallery font, covers them — and should be at least
+# 120 columns by 41 rows.
 #
 # MIT License
 #
@@ -41,6 +49,8 @@ import argparse
 import json
 import math
 import random
+import shutil
+import signal
 import sys
 import time
 
@@ -49,6 +59,7 @@ FPS = 15
 FRAMES = 180          # 12 seconds, one seamless loop
 SEED = 2027
 TAU = 2 * math.pi
+NEED_COLS, NEED_ROWS = COLS, ROWS + 1   # the artwork, plus one footer line
 
 # One palette for the terminal and the browser. Each cell stores an index into it.
 PALETTE = [
@@ -334,6 +345,29 @@ def change_stats(frames):
     return sum(rates) / len(rates), max(rates)
 
 
+def term_size():
+    s = shutil.get_terminal_size()
+    return s.columns, s.lines
+
+
+def wait_for_room():
+    """Wait until the terminal fits the artwork, saying so plainly."""
+    warned = False
+    while True:
+        c, l = term_size()
+        if c >= NEED_COLS and l >= NEED_ROWS:
+            if warned:
+                sys.stdout.write("\n")
+            return c, l
+        msg = ("Fireflies needs a terminal at least %d columns by %d rows — yours is "
+               "%d by %d. Resize the window and it will start when it fits "
+               "(Ctrl+C to quit)." % (NEED_COLS, NEED_ROWS, c, l))
+        sys.stdout.write("\r" + msg[:c].ljust(c))
+        sys.stdout.flush()
+        warned = True
+        time.sleep(0.25)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Fireflies over a still pond, in text.")
     ap.add_argument("--seed", type=int, default=SEED)
@@ -369,21 +403,53 @@ def main(argv=None):
     out.write("Drawing %d frames...\n" % FRAMES)
     out.flush()
     frames = [ansi(*f) if color else "\n".join(f[0]) for f in render_all(scene)]
-    out.write("\033[?25l\033[2J")
+    footer = ("\033[38;2;93;102;136mFireflies - Ctrl+C to stop\033[0m"
+              if color else "Fireflies - Ctrl+C to stop")
+
+    def _term(*_args):
+        raise KeyboardInterrupt
     try:
-        start, shown = time.monotonic(), -1
+        old_term = signal.signal(signal.SIGTERM, _term)
+    except (AttributeError, ValueError, OSError):
+        old_term = None
+    try:
         while True:
-            i = int((time.monotonic() - start) * FPS) % FRAMES
-            if i != shown:
-                out.write("\033[H" + frames[i] + "\n")
+            wait_for_room()
+            cols, lines = term_size()
+            pad_left = (cols - COLS) // 2
+            pad_top = (lines - NEED_ROWS) // 2
+            out.write("\033[?1049h\033[?25l\033[2J")
+            try:
+                start, shown = time.monotonic(), -1
+                size = (cols, lines)
+                while True:
+                    c, l = term_size()
+                    if c < NEED_COLS or l < NEED_ROWS:
+                        break
+                    if (c, l) != size:
+                        size = (c, l)
+                        pad_left = (c - COLS) // 2
+                        pad_top = (l - NEED_ROWS) // 2
+                        out.write("\033[2J")
+                        shown = -1
+                    i = int((time.monotonic() - start) * FPS) % FRAMES
+                    if i != shown:
+                        body = "\n".join(" " * pad_left + ln for ln in frames[i].split("\n"))
+                        out.write("\033[H" + "\n" * pad_top + body + "\n" + " " * pad_left + footer + "\n")
+                        out.flush()
+                        shown = i
+                    time.sleep(0.005)
+            finally:
+                out.write("\033[0m\033[?25h\033[?1049l\n")
                 out.flush()
-                shown = i
-            time.sleep(0.005)
     except KeyboardInterrupt:
         pass
     finally:
-        out.write("\033[0m\033[?25h\n")
-        out.flush()
+        if old_term is not None:
+            try:
+                signal.signal(signal.SIGTERM, old_term)
+            except (AttributeError, ValueError, OSError):
+                pass
 
 
 if __name__ == "__main__":
