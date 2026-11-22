@@ -14,10 +14,10 @@ markers=[dict(frame=n,file="source/"+sources[i],line=line(sources[i],a),endLine=
 header=dict(version=1,title=title,cols=W,rows=H,frames=count,fps=fps,background=bg,
             sources=["source/"+s for s in sources],markers=markers)
 
-with ZipFile(root.parents[1]/"artworks"/(root.name+".rwl"),"w",ZIP_DEFLATED) as z:
+with ZipFile(root.parent / "player"/"artworks"/(root.name+".rwl"),"w",ZIP_DEFLATED) as z:
     z.writestr("manifest.json",json.dumps(header))
     for s in sources:z.write(root/s,"source/"+s)
-    z.write(root.parents[2]/"LICENSE","LICENSE.txt")
+    z.write(root.parent/"LICENSE","LICENSE.txt")
     raw=root/"frames.bin"
     if raw.stat().st_size!=W*H*count*5:raise ValueError("Regenerate frames with node tide.mjs frames.bin")
     z.write(raw,"frames.bin")

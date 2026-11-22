@@ -9,9 +9,9 @@ Six fixed source markers point to the registration corners, cut, carbon deposit,
 Install Go and Python 3.10+. Go draws the entire piece. The small Python script wraps the cells and their Go source in a ZIP. From the repository root:
 
 ```sh
-cd player/examples/carbon-paper
+cd carbon-paper
 go run carbon.go frames.bin
 python package.py
 ```
 
-The result replaces [the playable package](../../artworks/00-carbon-paper.rwl). Relaunch the player to see your changes. Original code and artwork use the repository’s [MIT license](../../../LICENSE).
+The result replaces [the playable package](../player/artworks/00-carbon-paper.rwl). Relaunch the player to see your changes. Original code and artwork use the repository’s [MIT license](../LICENSE).

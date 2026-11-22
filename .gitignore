@@ -33,5 +33,5 @@ Thumbs.db
 /player/private/
 /player/.local/
 /player/review-*.png
-/player/examples/*/frames.bin
-/player/examples/*/still.png
+/carbon-paper/frames.bin
+/endpaper-tide/frames.bin

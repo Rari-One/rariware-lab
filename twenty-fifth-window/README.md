@@ -9,9 +9,9 @@ In music.py, eight bars of waltz time combine struck music-box teeth, bowed down
 Use Python 3.10+ with NumPy. The package script renders both the frames and the exact-length audio track. From the repository root:
 
 ```sh
-cd player/examples/twenty-fifth-window
+cd twenty-fifth-window
 python -m pip install numpy
 python pack.py
 ```
 
-The result replaces [the playable package](../../artworks/twenty-fifth-window.rwl). Relaunch the player to see your changes. Original code and artwork use the repository’s [MIT license](../../../LICENSE).
+The result replaces [the playable package](../player/artworks/twenty-fifth-window.rwl). Relaunch the player to see your changes. Original code and artwork use the repository’s [MIT license](../LICENSE).

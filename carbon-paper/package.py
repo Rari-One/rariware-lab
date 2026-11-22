@@ -15,9 +15,9 @@ def locate(phrase):
 manifest = dict(version=1, title="Carbon Paper", cols=116, rows=38, fps=20,
                 frames=300, background="#111a23", sources=["source/carbon.go"],
                 markers=[dict(frame=n, file="source/carbon.go", line=locate(s)) for n,s in marks])
-package = root.parents[1] / "artworks" / "00-carbon-paper.rwl"
+package = root.parent / "player" / "artworks" / "00-carbon-paper.rwl"
 with ZipFile(package, "w", ZIP_DEFLATED) as z:
     z.writestr("manifest.json", json.dumps(manifest))
     z.write(source, "source/carbon.go")
     z.write(root / "frames.bin", "frames.bin")
-    z.write(root.parents[2] / "LICENSE", "LICENSE.txt")
+    z.write(root.parent / "LICENSE", "LICENSE.txt")

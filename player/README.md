@@ -24,14 +24,14 @@ A frame is one picture made from a rectangular grid. Each cell stores a characte
 
 ## Make your first artwork
 
-Try the [two-frame recipe and package reference](PACKAGES.md), or begin with a complete example. Each example has its original sources and a command to regenerate the package in `artworks/`.
+Try the [two-frame recipe and package reference](PACKAGES.md), or explore one of the Lab experiments below. Each has its own directory at the repository root with source, a README, and instructions to regenerate its playable package in `player/artworks/`.
 
 | Piece | Material | Study |
 | --- | --- | --- |
-| [Carbon Paper](examples/carbon-paper/) | Go, silent | Eight-dot engraving and a traveling impression |
-| [Umbra Choir](examples/umbra-choir/) | Python, stereo | A single score drives stars and ringing glass |
-| [The Twenty-Fifth Window](examples/twenty-fifth-window/) | Python, stereo | Layered scenery and beat-driven lights |
-| [Endpaper Tide](examples/endpaper-tide/) | JavaScript, silent | Combed ribbons of pixel color |
+| [Carbon Paper](../carbon-paper/) | Go, silent | Eight-dot engraving and a traveling impression |
+| [Umbra Choir](../umbra-choir/) | Python, stereo | A single score drives stars and ringing glass |
+| [The Twenty-Fifth Window](../twenty-fifth-window/) | Python, stereo | Layered scenery and beat-driven lights |
+| [Endpaper Tide](../endpaper-tide/) | JavaScript, silent | Combed ribbons of pixel color |
 
 ## Build and share
 
@@ -48,4 +48,4 @@ go build -trimpath -ldflags "-s -w -H windowsgui" -o LabPlayer.exe .
 
 For a portable distribution, put the executable beside `artworks/`, the [notices](notices/) folder, and the repository [MIT license](../LICENSE). Include the packages you wish to share, then ZIP that folder's contents. Windows x64 is the supported release target; playback needs a working graphics backend and audio output for sounding pieces.
 
-Contributions are welcome through a pull request. For artwork, include the original source, regeneration instructions, its package, and the notices for any material you distribute. For a player change, explain what the viewer or author can now do and check playback with an existing silent and sounding package.
+Contributions are welcome through a pull request. Give each new Lab experiment its own top-level directory alongside these four. For artwork, include the original source, regeneration instructions, its package, and the notices for any material you distribute. For a player change, explain what the viewer or author can now do and check playback with an existing silent and sounding package.

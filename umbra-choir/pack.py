@@ -22,10 +22,10 @@ markers=[
 ]
 header=dict(version=1,title='Umbra Choir',cols=W,rows=H,fps=FPS,frames=FRAMES,
  background='#080c1c',sources=['source/'+f for f in files],markers=markers,audio='audio.pcm')
-with ZipFile(root.parents[1]/'artworks'/'umbra-choir.rwl','w',ZIP_DEFLATED) as z:
+with ZipFile(root.parent / 'player'/'artworks'/'umbra-choir.rwl','w',ZIP_DEFLATED) as z:
  z.writestr('manifest.json',json.dumps(header))
  for f in files:z.write(root/f,'source/'+f)
- z.write(root.parents[2]/'LICENSE','LICENSE.txt')
+ z.write(root.parent/'LICENSE','LICENSE.txt')
  z.writestr('audio.pcm',render().tobytes())
  with z.open('frames.bin','w') as out:
   for n in range(FRAMES):out.write(image(n))
