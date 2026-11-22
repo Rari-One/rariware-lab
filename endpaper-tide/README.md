@@ -9,9 +9,9 @@ One turn of the phase takes 240 frames at 20 fps. The four source ranges follow 
 Install Node.js and Python 3.10+. Node writes the frame stream; the Python standard library packages it with the JavaScript listing. From the repository root:
 
 ```sh
-cd player/examples/endpaper-tide
+cd endpaper-tide
 node tide.mjs frames.bin
 python pack.py
 ```
 
-The result replaces [the playable package](../../artworks/endpaper-tide.rwl). Relaunch the player to see your changes. Original code and artwork use the repository’s [MIT license](../../../LICENSE).
+The result replaces [the playable package](../player/artworks/endpaper-tide.rwl). Relaunch the player to see your changes. Original code and artwork use the repository’s [MIT license](../LICENSE).

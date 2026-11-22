@@ -1,9 +1,2 @@
 artworks/*.rwl binary
 fonts/*.ttf binary
-# Keep the originals byte-identical to the listings inside the approved artworks.
-examples/carbon-paper/carbon.go -text diff
-examples/endpaper-tide/tide.mjs -text diff
-examples/twenty-fifth-window/music.py -text diff
-examples/twenty-fifth-window/scene.py -text diff
-examples/umbra-choir/sky.py -text diff
-examples/umbra-choir/score.py -text diff
