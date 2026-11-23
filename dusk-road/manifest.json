@@ -1,0 +1,18 @@
+{
+ "format": "rariware-lab-manifest",
+ "id": "dusk-road",
+ "title": "Dusk Road",
+ "description": "A road home through the woods at dusk, drawn in text. Pines slide past on either side, fireflies drift over the grass, mist lies low over the road, and a small warm light waits on the horizon.",
+ "alt": "A road running away through dark pines at dusk toward a small warm light on the horizon, under a low moon.",
+ "source": "dusk-road.py",
+ "frames": "frames.json",
+ "cols": 120,
+ "rows": 40,
+ "fps": 15,
+ "frameCount": 180,
+ "stillFrame": 0,
+ "license": "MIT",
+ "copyright": "Copyright (c) 2026 Rari-One",
+ "featured": false,
+ "order": 6
+}
