@@ -7,3 +7,6 @@ umbra-choir/sky.py -text diff
 umbra-choir/score.py -text diff
 salt-and-brass/plate.py -text diff
 salt-and-brass/score.py -text diff
+seven-jars/garden.py -text diff
+seven-jars/score.py -text diff
+seven-jars/*.rwl binary
