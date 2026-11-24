@@ -18,3 +18,5 @@ may-i-have-my-coat/*.rwl binary
 the-margin-of-error/*.go -text diff
 the-margin-of-error/NOTICE.txt -text diff
 the-margin-of-error/*.rwl binary
+midnight-watch/*.py -text diff
+midnight-watch/*.rwl binary
