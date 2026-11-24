@@ -20,3 +20,5 @@ the-margin-of-error/NOTICE.txt -text diff
 the-margin-of-error/*.rwl binary
 midnight-watch/*.py -text diff
 midnight-watch/*.rwl binary
+flyway/*.py -text diff
+flyway/*.rwl binary

@@ -62,7 +62,7 @@ def main():
         "frames": FRAMES, "background": "#0b0e1a", "audio": "audio.pcm",
         "sources": ["source/" + s for s in SOURCES], "markers": markers,
     }
-    license_path = ROOT.parent.parent / "LICENSE"
+    license_path = ROOT.parent / "LICENSE"
     license_text = (license_path.read_text(encoding="utf-8") if license_path.exists()
                     else LICENSE_TEXT)
     # Fixed entry dates, so the package rebuilds byte-identical. ZipInfo
