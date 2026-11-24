@@ -10,3 +10,5 @@ salt-and-brass/score.py -text diff
 seven-jars/garden.py -text diff
 seven-jars/score.py -text diff
 seven-jars/*.rwl binary
+long-way-round/*.py -text diff
+long-way-round/*.rwl binary
