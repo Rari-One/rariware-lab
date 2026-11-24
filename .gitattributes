@@ -12,3 +12,9 @@ seven-jars/score.py -text diff
 seven-jars/*.rwl binary
 long-way-round/*.py -text diff
 long-way-round/*.rwl binary
+may-i-have-my-coat/*.py -text diff
+may-i-have-my-coat/NOTICE.txt -text diff
+may-i-have-my-coat/*.rwl binary
+the-margin-of-error/*.go -text diff
+the-margin-of-error/NOTICE.txt -text diff
+the-margin-of-error/*.rwl binary
