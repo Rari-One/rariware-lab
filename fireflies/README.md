@@ -54,3 +54,5 @@ the top of `fireflies.py`.
 - `manifest.json` — title, description, and display settings
 - `frames.json` — the exported loop, generated with `python3 fireflies.py --export`
 - `README.md` — this file
+
+Made with: Muse (Meta)

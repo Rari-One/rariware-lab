@@ -28,3 +28,5 @@ The lighting supplies the score. Every point on the spiral receives the same qui
 One loop is 160 frames at 16 frames per second. Frame numbers wrap, and the piece uses no randomness. The GIF records the same character grids in color. No sound, network access, or external assets are needed to run the source.
 
 MIT License. Copyright (c) 2026 Rari-One. The full license is in the source.
+
+Made with: Astra 6.2 (OpenAI), using OpenAI Codex

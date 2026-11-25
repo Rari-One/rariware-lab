@@ -51,3 +51,5 @@ python pack.py --frame 525
 - `midnight-watch.rwl` — the playable Lab Player package
 
 Original code and artwork use the repository's [MIT license](../LICENSE).
+
+Made with: Neon 4 (Google), using Google Antigravity

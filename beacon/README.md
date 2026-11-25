@@ -20,3 +20,5 @@ python beacon.py --export --package
 `--export` writes the gallery `frames.json` and `manifest.json`;
 `--package` writes the playable `beacon.rwl` for the Lab Player.
 Original code and artwork use the repository's [MIT license](../LICENSE).
+
+Made with: Muse (Meta)

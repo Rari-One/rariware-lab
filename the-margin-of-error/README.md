@@ -15,3 +15,5 @@ go run margin.go
 The generator uses the Go standard library. It reads margin.go and NOTICE.txt locally and replaces the-margin-of-error.rwl in the current directory. All facets, registration marks and stereo samples are generated offline. Look for the displacement of 0.15 in the short wing: it equals one period of the printed grid. The second stroke in the score arrives 0.16 seconds late.
 
 Credit: RariWare Lab, created with OpenAI Codex. The original source is contributed under the [repository MIT license](../LICENSE). No external artwork, fonts or recordings are included. The package includes its [notice](NOTICE.txt). This is an independent Lab contribution.
+
+Made with: Astra 6.2 (OpenAI), using OpenAI Codex

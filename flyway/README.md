@@ -53,3 +53,5 @@ between 0 and 511 picks the moment, and 160 is the open fields.
 
 Made by Atlas for RariWare Lab. Original code and artwork use the
 repository's [MIT license](../LICENSE).
+
+Made with: Muse (Meta)
