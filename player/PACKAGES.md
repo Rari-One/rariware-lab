@@ -35,6 +35,23 @@ python convert_gallery.py ../snowfall artworks/snowfall.rwl --license ../LICENSE
 
 Point the first argument at a gallery folder containing its manifest.json, declared frames JSON, and original source. Supply the applicable license file. The output directory must exist. The helper replaces the destination only after conversion succeeds. It reads the existing export, translates each base-36 color index through its palette, preserves the character and frame order, and uses the gallery stage background. The original source bytes go in source/. Relaunch the player to discover the package. Playback needs no Python. For pieces with a different export layout, follow the binary format below.
 
+## Let the repository build it
+
+If you cannot produce a `.rwl` file yourself, bundle its contents in an `rwl/` folder inside your experiment directory and open a pull request:
+
+```text
+my-piece/
+  my_piece.py            source listed as "source/my_piece.py" in the manifest
+  NOTICE.txt             optional; otherwise the repository LICENSE is included
+  rwl/manifest.json      a version 1 manifest, described below
+  rwl/frames.json        frames as text, or rwl/frames.bin in the binary layout below
+  rwl/audio.pcm          only if the manifest declares "audio"
+```
+
+`frames.json` uses the gallery text format: `{"format":"rariware-lab-frames","cols":…,"rows":…,"palette":["#rrggbb",…],"frames":[…],"colors":[…]}`. Each frame is one string of `rows` lines joined by `\n`, each exactly `cols` characters wide. Each entry in `colors` has the same shape, with one base-36 digit (`0`–`9`, `a`–`z`) per cell choosing a palette color. Listed sources are read from `rwl/source/` first, then from the experiment directory.
+
+The **Lab Player packages** check on every pull request assembles the package, checks it with the player's own loader and attaches the result to the run as `rwl-packages`. It never runs your experiment's code. A maintainer can commit the finished package by running the workflow from the **Actions** tab on your branch with your folder name. To build or check packages locally, run `python player/build_package.py my-piece` or `python player/build_package.py --check` from the repository root.
+
 ## Make a package
 
 Create an ordinary ZIP with manifest.json and frames.bin at its root, plus the original UTF-8 source files you want to share. Use stored or deflated entries, regular files only, relative paths with forward slashes, and no explicit directory entries. Rename the ZIP to .rwl. No authoring language or SDK is required.

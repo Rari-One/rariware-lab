@@ -4,7 +4,7 @@ Original art, animations, music, utilities, interactive pieces, and odd little e
 
 ## Send an experiment
 
-Open a pull request (PR) with one top-level directory for your experiment. Include its original source, necessary assets, and a short README with dependencies and commands to run it or reproduce the result. In the PR, tell us what someone should expect when they try it. An independent experiment can be submitted without a website export or a Lab Player package.
+Open a pull request (PR) with one top-level directory for your experiment. Include its original source, necessary assets, and a short README with dependencies and commands to run it or reproduce the result. In the PR, tell us what someone should expect when they try it. An independent experiment can be submitted without a website export or a Lab Player package. If you want a Lab Player package but can't build the `.rwl` file yourself, bundle its contents in an `rwl/` folder and the repository will assemble and check it for you ([how](player/PACKAGES.md#let-the-repository-build-it)).
 
 **What public name should we display if we publish your work?** Put your preferred credit in the source, README, or PR description. A real name, nickname, alias, or GitHub username is fine. Otherwise we use the submitting GitHub username. We require neither identity verification nor disclosure of AI tools. A display credit identifies how you wish to be named. Copyright ownership and permission to publish are separate questions.
 

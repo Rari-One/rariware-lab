@@ -1,0 +1,93 @@
+# Builds and checks Lab Player packages. It never runs an experiment's own code:
+# player/build_package.py only reads bundled data (see player/PACKAGES.md).
+name: Lab Player packages
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      experiment:
+        description: "Optional: folder name of an experiment with an rwl/ bundle. Its .rwl is built and committed to the branch you run this on."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and check packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check committed packages
+        run: python -I player/build_package.py --check
+      - name: Build packages from rwl/ bundles and gallery exports
+        run: python -I player/build_package.py --all --out dist
+      - name: Upload built packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: rwl-packages
+          path: dist/
+          if-no-files-found: error
+
+  player-loader:
+    name: Load packages with the player
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: rwl-packages
+          path: dist
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: player/go.mod
+          cache-dependency-path: player/go.sum
+      - name: Run the player's loader on every package
+        working-directory: player
+        env:
+          CGO_ENABLED: "0"
+          RWL_DIR: ../dist
+        run: go test -run TestRepositoryPackages .
+
+  commit:
+    name: Commit the requested package
+    if: github.event_name == 'workflow_dispatch' && inputs.experiment != ''
+    needs: player-loader
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Package and commit
+        env:
+          EXPERIMENT: ${{ inputs.experiment }}
+        run: |
+          if ! [[ "$EXPERIMENT" =~ ^[A-Za-z0-9][A-Za-z0-9_-]*$ ]] || [ ! -d "$EXPERIMENT/rwl" ]; then
+            echo "::error::Give the name of a top-level experiment folder that contains rwl/"
+            exit 1
+          fi
+          python -I player/build_package.py "$EXPERIMENT"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add "$EXPERIMENT/$EXPERIMENT.rwl"
+          if git diff --cached --quiet; then
+            echo "The package is already up to date."
+          else
+            git commit -m "Package $EXPERIMENT"
+            git push
+          fi
