@@ -93,7 +93,7 @@ class Fireflies:
         self.horizon = round(rows * 0.65)                 # first pond row
         hz = self.horizon
 
-        # Moon: a small crescent, high on the right, clear of the fireflies.
+        # Moon: a small full disc, high on the right, clear of the fireflies.
         self.moon = (96, 5)
 
         # Stars: (x, y) -> (brightness, twinkle cycles per loop, phase).
@@ -186,13 +186,15 @@ class Fireflies:
 
         # Moon: a small full disc, with a faint halo ring. A crescent
         # read as a thin sliver at this size, so the disc stays whole.
+        # Cells are twice as tall as they are wide, so distances across
+        # count half: the disc is round on screen, not a tall pill.
         mx, my = self.moon
         for y in range(my - 5, my + 6):
-            for x in range(mx - 5, mx + 6):
+            for x in range(mx - 10, mx + 11):
                 if not (0 <= x < cols and 0 <= y < hz):
                     continue
-                d = math.hypot(x - mx, y - my)
-                if d <= 3.0:
+                d = math.hypot((x - mx) / 2, y - my)
+                if d <= 2.8:
                     ch[y][x], co[y][x] = "█", 8 if d > 1.8 else 7
                 elif 3.8 < d <= 4.6 and (x + 2 * y) % 3 == 0 and ch[y][x] == " ":
                     ch[y][x], co[y][x] = "·", 9
