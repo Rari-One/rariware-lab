@@ -15,4 +15,4 @@ python pack.py
 
 Dependency installation may use the network. Generation runs offline, reads the three Python listings and NOTICE.txt, and replaces may-i-have-my-coat.rwl beside them. [stage.py](stage.py) uses hand-posed joints, a delayed hem and shaded character cells. [pit.py](pit.py) synthesizes the full stereo score. [pack.py](pack.py) assembles both into a v1 package.
 
-Credit: RariWare Lab, created with OpenAI Codex. The original source is contributed under the [repository MIT license](../LICENSE). The figures, choreography, music and sound effects were created for this piece. No external artwork or recordings are included. The package preserves its [original candidate notice](NOTICE.txt). Website exhibition requires separate rights documentation and publication approval.
+Credit: RariWare Lab, created with OpenAI Codex. The original source is contributed under the [repository MIT license](../LICENSE). The figures, choreography, music and sound effects were created for this piece. No external artwork or recordings are included. The package includes its [notice](NOTICE.txt).
