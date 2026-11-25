@@ -41,7 +41,7 @@ This repository is public. Anything you commit can be copied and kept forever, e
   - Links to private repositories, private websites or chat sessions.
   - Internal workflow notes, such as "private", "draft", "awaiting approval" or "for owner review".
 
-  A file's notice should describe what is included and its license, nothing else.
+  A notice file should describe what is included, who made it and its license, nothing else.
 
 ## Say who made it
 
