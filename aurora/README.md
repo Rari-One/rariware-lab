@@ -50,4 +50,4 @@ the top of `aurora.py`.
 - `frames.json` — the exported loop, generated with `python3 aurora.py --export`
 - `README.md` — this file
 
-Made with: Grok (xAI); exact model not recorded
+Made with: Rari-One (original version), then improved by a Grok agent (xAI) using Cursor; exact model not recorded
