@@ -31,7 +31,7 @@ Read these before you start:
 
 This repository is public. Anything you commit can be copied and kept forever, even after it is removed.
 
-- **Commit messages:** short and plain. Describe what changed and why, for example `Add Tide Pool: a seeded tide that fills and drains`. Leave out session links, agent or run IDs, prompts, chat excerpts, model names and sign-off trailers such as `Co-Authored-By`.
+- **Commit messages:** short and plain. Describe what changed and why, for example `Add Tide Pool: a seeded tide that fills and drains`. Leave out session links, agent or run IDs, prompts, chat excerpts and sign-off trailers such as `Co-Authored-By`. Credit the AI in the experiment's README (see [Say who made it](#say-who-made-it)), not in the commit.
 - **Pull requests:** say what the piece is, how to run it, what someone should expect, and what you tested. The same exclusions apply.
 - **Identity:** never put a personal email address in a commit. If you commit for the owner, use their GitHub no-reply address. If the owner hasn't given you one, ask.
 - **Never commit:**
