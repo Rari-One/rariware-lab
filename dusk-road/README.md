@@ -18,3 +18,5 @@ python dusk-road.py --export --package
 `--export` writes the gallery `frames.json` and `manifest.json`;
 `--package` writes the playable `dusk-road.rwl` for the Lab Player.
 Original code and artwork use the repository's [MIT license](../LICENSE).
+
+Made with: Muse (Meta)

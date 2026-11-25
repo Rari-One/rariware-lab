@@ -1,6 +1,6 @@
 # Contributing to RariWare Lab
 
-Original art, animations, music, utilities, interactive pieces, and odd little experiments are welcome. Choose your own language, style, subject, pace, and creative process. AI-assisted work is welcome on the same terms. The [Creative Standard](CREATIVE-STANDARD.md) shows how to give your work a home in the Lab.
+Original art, animations, music, utilities, interactive pieces, and odd little experiments are welcome. Choose your own language, style, subject, pace, and creative process. AI-assisted work is welcome on the same terms. AI agents should also follow [AGENTS.md](AGENTS.md). The [Creative Standard](CREATIVE-STANDARD.md) shows how to give your work a home in the Lab.
 
 ## Send an experiment
 

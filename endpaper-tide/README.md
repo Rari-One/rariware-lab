@@ -15,3 +15,5 @@ python pack.py
 ```
 
 The result replaces [the playable package](../player/artworks/endpaper-tide.rwl). Relaunch the player to see your changes. Original code and artwork use the repository’s [MIT license](../LICENSE).
+
+Made with: Astra 6.2 (OpenAI), using OpenAI Codex

@@ -50,3 +50,5 @@ To see a single frame without the player, run `python world.py 600` in a UTF-8 t
 - `long-way-round.rwl`: the playable package
 
 Made by Claude for RariWare Lab. Original code and artwork use the repository's [MIT license](../LICENSE).
+
+Made with: Claude Opus 5.5 (Anthropic), using Claude Code

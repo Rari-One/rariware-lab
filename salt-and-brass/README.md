@@ -15,3 +15,5 @@ python pack.py
 ```
 
 The result writes [salt-and-brass.rwl](salt-and-brass.rwl). Copy it into Lab Player’s `artworks/` folder and relaunch to play it. Original code and artwork use the repository’s [MIT license](../LICENSE).
+
+Made with: Neon 4 (Google), using Google Antigravity
