@@ -55,4 +55,4 @@ the top of `fireflies.py`.
 - `frames.json` — the exported loop, generated with `python3 fireflies.py --export`
 - `README.md` — this file
 
-Made with: Muse (Meta)
+Made with: Muse (Meta); moon made round on screen by a Grok agent (xAI) using Cursor, exact model not recorded
