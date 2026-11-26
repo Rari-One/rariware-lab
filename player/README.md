@@ -52,18 +52,21 @@ Try the [two-frame recipe and package reference](PACKAGES.md), or explore one of
 
 ## Build and share
 
-For a Windows x64 build, install the Go toolchain specified in [go.mod](go.mod). The player uses Ebitengine v2.10.6 for the window, graphics, input and audio. The Go image library (golang.org/x/image v0.48.0) loads the font and draws text. Go downloads missing modules into its cache. From the repository root, run these commands in Windows PowerShell to test the player and write the executable to player/LabPlayer.exe.
+For a Windows x64 build, install the Go toolchain specified in [go.mod](go.mod). The player uses Ebitengine v2.10.6 for the window, graphics, input and audio. The Go image library (golang.org/x/image v0.48.0) loads the font and draws text. Go downloads missing modules into its cache. For the Windows executable icon, install the build tool once with `go install github.com/akavel/rsrc@v0.10.2` and put the Go binary directory on your PATH. The generation step writes `player/icon_windows_amd64.syso`, which Go links into the executable. From the repository root, run these commands in Windows PowerShell to test the player and write the executable to player/LabPlayer.exe.
 
 ```powershell
 cd player
 $env:GOARCH = "amd64"
 $env:CGO_ENABLED = "0"
+go generate .
 go test .
 go build -trimpath -ldflags "-s -w -H windowsgui" -o LabPlayer.exe .
 .\LabPlayer.exe
 ```
 
 For a portable distribution, put the executable beside `artworks/`, the [notices](notices/) folder, and the repository [MIT license](../LICENSE). Include the packages you wish to share, then ZIP that folder's contents. Windows x64 is the supported release target; playback needs a working graphics backend and audio output for sounding pieces.
+
+The [identity assets](identity/README.md) include the SVG masters, Linux desktop icon and instructions for regenerating the artwork.
 
 Discuss changes to the player with the maintainer before submitting them. In a pull request, explain what changed, how to try it, what the viewer should see or hear, and what you tested. For playback changes, try both a silent piece and a piece with sound. The [contribution guide](../CONTRIBUTING.md) describes review and distribution permissions.
 
