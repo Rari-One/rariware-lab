@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	e "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -9,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
 	"math"
+	"path/filepath"
 	"sort"
 
 	"time"
@@ -25,23 +25,44 @@ type view struct {
 	since                                     time.Duration
 	lines                                     [][]string
 	status                                    string
+	libraryDir                                string
+	libraryErr                                error
+	scrubbing, resumeAfterScrub               bool
+	artHintUntil, statusUntil                 time.Time
+	pointerX, pointerY                        int
+	scrubX                                    int
+	navWidth, cardWidth, cardHeight           int
+	cards                                     []libraryCard
+	resizingNav, help, ide                    bool
 }
 
 func (g *player) selectPiece(i int) error {
-	p, err := readPackage(pieces[i].path)
+	return g.loadPiece(i, pieces[i].path)
+}
+
+func (g *player) loadPiece(i int, path string) error {
+	p, err := readPackage(path)
 	if err != nil {
-		g.status = "Package unavailable: " + pieces[i].name
+		g.showError("Could not open " + filepath.Base(path))
 		return err
 	}
 	next, err := openTrack(p.pcm)
 	if err != nil {
-		g.status = "Audio unavailable"
+		g.showError("Audio unavailable for " + filepath.Base(path))
 		return err
 	}
 	g.stopTrack()
 	g.sound = next
-	pieces[i] = p.piece
+	if i == len(pieces) {
+		pieces = append(pieces, p.piece)
+	} else {
+		pieces[i] = p.piece
+	}
 	g.id = i
+	g.cardWidth = 0
+	g.revealCard(i)
+	g.scrubbing = false
+	g.dragging = false
 	g.last = -1
 	g.raw = p.raw
 	g.lines = p.lines
@@ -49,7 +70,7 @@ func (g *player) selectPiece(i int) error {
 	g.column = 0
 	g.file = 0
 	g.prepareListing()
-	g.follow = false
+	g.follow = len(p.markers) > 0
 	g.paused = false
 	g.since = 0
 	g.start = time.Now()
@@ -65,11 +86,11 @@ func (g *player) selectPiece(i int) error {
 	return nil
 }
 func (g *player) elapsed() time.Duration {
-	if g.sound != nil {
-		return g.sound.Position()
-	}
 	if g.paused {
 		return g.since
+	}
+	if g.sound != nil {
+		return g.sound.Position()
 	}
 	return g.since + time.Since(g.start)
 }
@@ -99,7 +120,7 @@ func (g *player) activeMarker() *marker {
 }
 func (g *player) left() int {
 	if g.nav && !g.full {
-		return 220
+		return g.sidebarWidth()
 	}
 	return 0
 }
@@ -117,20 +138,103 @@ func (g *player) sourceScroll(delta int) {
 	g.follow = false
 	g.line = max(0, min(len(g.lines[g.file])-1, g.line+delta))
 }
+
+// The hint uses wall time so it also fades while playback is paused.
+func hintAlpha(now, until time.Time) uint8 {
+	const fade = 500 * time.Millisecond
+	remaining := until.Sub(now)
+	if remaining <= 0 {
+		return 0
+	}
+	if remaining >= fade {
+		return 255
+	}
+	return uint8(remaining * 255 / fade)
+}
+
+func (g *player) artInput(now time.Time, x, y int, activity bool) {
+	if activity || x != g.pointerX || y != g.pointerY {
+		g.artHintUntil = now.Add(2500 * time.Millisecond)
+	}
+	g.pointerX, g.pointerY = x, y
+}
+
+func (g *player) artExitHit(now time.Time, x, y int) bool {
+	return g.full && hintAlpha(now, g.artHintUntil) > 0 && x >= g.w-90 && x < g.w && y >= 0 && y < 36
+}
+
 func (g *player) Update() error {
 	x, y := e.CursorPosition()
 	click := inpututil.IsMouseButtonJustPressed(e.MouseButtonLeft)
 	key := inpututil.IsKeyJustPressed
-	if key(e.KeyF) || key(e.KeyEscape) && g.full || click && ((!g.full && y < 36 && x >= 320 && x < 460) || (g.full && x >= g.w-90 && y < 36)) {
+	now := time.Now()
+	// Test the previous hint before movement can reveal it on this same click.
+	exitClick := click && g.artExitHit(now, x, y)
+	if g.full {
+		playbackKey := key(e.KeySpace) || key(e.KeyR) || key(e.KeyBracketLeft) || key(e.KeyBracketRight)
+		stepKey := g.paused && (key(e.KeyComma) || key(e.KeyPeriod))
+		g.artInput(now, x, y, playbackKey || stepKey || key(e.KeyT) || key(e.KeyF1) || key(e.KeyEscape))
+	}
+	if files := e.DroppedFiles(); files != nil {
+		g.openDrop(files)
+	}
+	if g.scrubbing {
+		err := g.updateScrub(x, e.IsMouseButtonPressed(e.MouseButtonLeft), false)
+		g.followMarker()
+		return err
+	}
+	if key(e.KeyF1) || !g.help && !g.full && click && y < 36 && x >= 460 && x < 540 {
+		g.help = !g.help
+		g.dragging, g.resizingNav = false, false
+		e.SetCursorShape(e.CursorShapeDefault)
+		return nil
+	}
+	if g.help {
+		if key(e.KeyEscape) || click {
+			g.help = false
+		}
+		g.followMarker()
+		return nil
+	}
+	if key(e.KeyT) || !g.full && click && y < 36 && x >= 540 && x < 640 {
+		g.ide = !g.ide
+	}
+	if g.resizingNav {
+		g.resizeLibrary(x)
+		g.resizingNav = e.IsMouseButtonPressed(e.MouseButtonLeft)
+		if !g.resizingNav {
+			e.SetCursorShape(e.CursorShapeDefault)
+		}
+		return nil
+	}
+	if key(e.KeyBracketLeft) {
+		g.moveWork(-1)
+	} else if key(e.KeyBracketRight) {
+		g.moveWork(1)
+	}
+	if key(e.KeyF) || key(e.KeyEscape) && g.full || exitClick || click && !g.full && y < 36 && x >= 320 && x < 460 {
 		g.dragging = false
 		e.SetCursorShape(e.CursorShapeDefault)
 		g.full = !g.full
+		if g.full {
+			g.artInput(now, x, y, true)
+		}
 		return nil
 	}
 	if !g.full && (key(e.KeyTab) || click && y < 36 && x < 100) {
 		g.nav = !g.nav
 	}
 	if g.tex != nil {
+		if g.paused && (key(e.KeyComma) || key(e.KeyPeriod)) {
+			delta := 1
+			if key(e.KeyComma) {
+				delta = -1
+			}
+			count := pieces[g.id].count
+			if err := g.seekFrame((g.frame() + delta + count) % count); err != nil {
+				return err
+			}
+		}
 		if key(e.KeySpace) || !g.full && click && y < 36 && x >= 100 && x < 210 {
 			g.togglePause()
 		}
@@ -142,6 +246,26 @@ func (g *player) Update() error {
 	}
 	if g.full {
 		return nil
+	}
+	onSidebar := g.nav && !g.dragging && y >= 36 && x >= g.left()-5 && x <= g.left()+4
+	if onSidebar {
+		e.SetCursorShape(e.CursorShapeEWResize)
+		if click {
+			g.resizingNav = true
+		}
+		g.followMarker()
+		return nil
+	}
+	bar := g.timeline()
+	if g.tex != nil && click && x >= bar.left-4 && x <= bar.right+4 && y >= bar.y-10 && y <= bar.y+10 {
+		g.resumeAfterScrub = !g.paused
+		if !g.paused {
+			g.togglePause()
+		}
+		g.scrubbing = true
+		err := g.updateScrub(x, true, true)
+		g.followMarker()
+		return err
 	}
 	onDivider := g.tex != nil && x >= g.left() && y >= g.split()-6 && y < g.split()+5
 	if click && onDivider {
@@ -160,15 +284,8 @@ func (g *player) Update() error {
 		return nil
 	}
 	_, wheel := e.Wheel()
-	if g.nav && x < 220 && y >= 36 {
-		rows := max(1, (g.h-64)/26)
-		g.offset = max(0, min(max(0, len(pieces)-rows), g.offset-int(wheel)*3))
-		if click && y >= 64 {
-			i := g.offset + (y-64)/26
-			if i < len(pieces) {
-				g.selectPiece(i)
-			}
-		}
+	if g.nav && x < g.left() && y >= 36 {
+		g.libraryInput(x, y, click, wheel)
 	}
 	if g.tex == nil || len(g.lines) == 0 {
 		return nil
@@ -210,6 +327,11 @@ func (g *player) Update() error {
 		g.column = max(0, g.column-8)
 		g.follow = false
 	}
+	g.followMarker()
+	return nil
+}
+
+func (g *player) followMarker() {
 	if g.follow {
 		if m := g.activeMarker(); m != nil {
 			for i, s := range pieces[g.id].sources {
@@ -226,22 +348,27 @@ func (g *player) Update() error {
 			}
 		}
 	}
-	return nil
 }
 
-var ink = color.RGBA{201, 215, 215, 255}
-var accent = color.RGBA{137, 226, 191, 255}
-
 func (g *player) Draw(s *e.Image) {
-	s.Fill(color.RGBA{15, 20, 24, 255})
+	palette := g.colors()
+	ink, accent := palette.ink, palette.accent
+	s.Fill(palette.background)
+	if g.help {
+		defer g.drawShortcuts(s)
+	}
 	label := func(x, y int, str string, c color.Color) { text.Draw(s, str, g.face, x, y, c) }
 	left := g.left()
-	top, bottom := 38, g.split()
+	top, bottom := 38, g.split()-40
 	if g.full {
 		top = 0
 		bottom = g.h
 	}
-	if g.tex != nil {
+	if !g.full && g.status != "" {
+		// Reserve space for the message above the artwork, even with the library closed.
+		top += g.drawMessage(s, g.status, left+10, top+16, g.w-left-20)
+	}
+	if g.tex != nil && bottom > top {
 		g.paint()
 		p := pieces[g.id]
 		aw, ah := float64(p.w*9), float64(p.h*18)
@@ -252,7 +379,13 @@ func (g *player) Draw(s *e.Image) {
 		s.DrawImage(g.tex, op)
 	}
 	if g.full {
-		label(g.w-80, 22, "[Exit F]", accent)
+		now := time.Now()
+		if a := hintAlpha(now, g.artHintUntil); a > 0 {
+			label(g.w-80, 22, "[Exit F]", color.NRGBA{accent.R, accent.G, accent.B, a})
+		}
+		if now.Before(g.statusUntil) {
+			g.drawMessage(s, g.status, 8, 24, g.w-110)
+		}
 		return
 	}
 	button := "[Pause]"
@@ -263,29 +396,23 @@ func (g *player) Draw(s *e.Image) {
 	label(110, 24, button, accent)
 	label(220, 24, "[Restart]", accent)
 	label(330, 24, "[Art view F]", accent)
+	label(460, 24, "Controls", accent)
+	theme := "[Theme Lab]"
+	if g.ide {
+		theme = "[Theme IDE]"
+	}
+	label(540, 24, theme, accent)
 	if g.nav {
-		label(10, 55, "ARTWORKS", ink)
-		for i := g.offset; i < len(pieces) && 64+(i-g.offset)*26 < g.h-16; i++ {
-			c := ink
-			if g.tex != nil && i == g.id {
-				c = accent
-			}
-			r := []rune(pieces[i].name)
-			label(10, 82+(i-g.offset)*26, string(r[:min(20, len(r))]), c)
-		}
+		g.drawLibrary(s)
 	}
 	if g.tex == nil {
-		label(left+10, top+40, "Place .rwl files in artworks/ beside LabPlayer.exe.", ink)
-	}
-	if g.skipped > 0 || g.status != "" {
-		label(470, 24, fmt.Sprintf("%d skipped  %s", g.skipped, g.status), ink)
-	}
-	if g.tex == nil {
+		g.drawMessage(s, g.emptyMessage(), left+10, top+120, g.w-left-20)
 		return
 	}
+	g.drawTimeline(s)
 	split := g.split()
-	vector.DrawFilledRect(s, float32(left), float32(split), float32(g.w-left), 30, color.RGBA{34, 47, 50, 255}, false)
-	vector.DrawFilledRect(s, float32(left), float32(split-2), float32(g.w-left), 2, color.RGBA{70, 92, 93, 255}, false)
+	vector.DrawFilledRect(s, float32(left), float32(split), float32(g.w-left), 30, palette.panel, false)
+	vector.DrawFilledRect(s, float32(left), float32(split-2), float32(g.w-left), 2, palette.divider, false)
 	vector.DrawFilledRect(s, float32((g.w+left)/2-17), float32(split-3), 34, 4, ink, false)
 	if len(g.lines) == 0 {
 		label(left+10, split+21, "No source included", ink)
@@ -302,4 +429,7 @@ func (g *player) Draw(s *e.Image) {
 	label(left+229, split+21, pieces[g.id].sources[g.file], ink)
 	g.drawListing(s)
 }
-func (g *player) Layout(w, h int) (int, int) { g.w = max(640, w); g.h = max(420, h); return g.w, g.h }
+func (g *player) Layout(w, h int) (int, int) {
+	g.w, g.h = max(640, w), max(420, h)
+	return g.w, g.h
+}

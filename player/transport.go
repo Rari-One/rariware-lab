@@ -37,12 +37,21 @@ func (g *player) togglePause() {
 	}
 }
 func (g *player) restart() error {
+	return g.seekFrame(0)
+}
+
+func (g *player) seekFrame(frame int) error {
+	fps := int64(pieces[g.id].fps)
+	// Seek to the first PCM sample in the frame. Round up again when
+	// converting to nanoseconds so the audio backend cannot round it back.
+	sample := (int64(frame)*48000 + fps - 1) / fps
+	pos := time.Duration((sample*int64(time.Second) + 47999) / 48000)
 	if g.sound != nil {
-		if err := g.sound.SetPosition(0); err != nil {
+		if err := g.sound.SetPosition(pos); err != nil {
 			return err
 		}
 	}
-	g.since = 0
+	g.since = pos
 	g.start = time.Now()
 	return nil
 }

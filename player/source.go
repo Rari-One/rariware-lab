@@ -6,7 +6,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"golang.org/x/image/math/fixed"
-	"image/color"
 	"path/filepath"
 	"strings"
 	"unicode"
@@ -23,7 +22,6 @@ type styledLine struct {
 type scanner func([]rune, []byte, string) string
 
 var scanners = map[string]scanner{".py": pythonLine, ".pyw": pythonLine}
-var syntaxColors = []color.RGBA{ink, {145, 166, 164, 255}, {190, 174, 220, 255}, {181, 199, 151, 255}, {219, 184, 137, 255}}
 
 const pythonWords = " False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield "
 
@@ -109,6 +107,8 @@ func (g *player) reveal(line int) {
 
 }
 func (g *player) drawListing(s *e.Image) {
+	p := g.colors()
+	syntaxColors := p.syntax
 	left, top := g.left(), g.split()+34
 	advance, _ := g.face.GlyphAdvance('0')
 	marker := g.activeMarker()
@@ -116,8 +116,8 @@ func (g *player) drawListing(s *e.Image) {
 		index := g.line + row
 		y := top + row*rowHeight
 		if g.follow && marker != nil && marker.File == pieces[g.id].sources[g.file] && marker.Line == index+1 {
-			vector.DrawFilledRect(s, float32(left), float32(y), float32(g.w-left), rowHeight, color.RGBA{40, 61, 58, 255}, false)
-			vector.DrawFilledRect(s, float32(left), float32(y), 3, rowHeight, accent, false)
+			vector.DrawFilledRect(s, float32(left), float32(y), float32(g.w-left), rowHeight, p.selected, false)
+			vector.DrawFilledRect(s, float32(left), float32(y), 3, rowHeight, p.accent, false)
 		}
 		text.Draw(s, fmt.Sprintf("%5d", index+1), g.face, left+8, y+16, syntaxColors[1])
 		line := g.listing[index]

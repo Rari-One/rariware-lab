@@ -10,17 +10,34 @@ Watch a swallow lift off carbon paper, hear a moon cross a galaxy, or open an ex
 
 The executable is unsigned. Windows may display an unfamiliar-publisher warning. Download only from the official repository release and decide whether you trust the download before opening it.
 
-## Watch and explore
+## Follow a drawing back to its source
 
-Click a title in the library. **Space** pauses or resumes, **R** restarts, and **F** fills the window with the artwork. Press **Escape** to return. **Tab** collapses or opens the library. Audio uses the Windows output device and volume controls.
+Choose **Carbon Paper**. A swallow lifts off a blue impression as a cut travels across the paper. Press **Space** to pause. Click the second tick on the timeline. The picture jumps to frame 8, and **Follow** highlights line 150 of `source/carbon.go`. At 20 frames per second, that frame begins 0.4 seconds into the piece. Press **period** to advance one frame or **comma** to step back.
 
-Drag the horizontal divider to make more room for the source. Click **File** to browse the included files. Scroll over the listing or use the arrow and Page Up / Page Down keys. Left and right arrows reveal long lines. **Follow** is available when the artist has annotated the timeline. It highlights the lines the artist chose for the current moment. Scrolling or changing files returns you to manual browsing.
+Each tick marks a passage the artist chose. Drag the timeline to preview frames in silence. Release it to resume if the piece was playing. Follow starts on for works with markers. Scroll the source or click **File** to read at your own pace. Click **Follow** to return to the passage for the current frame.
 
-The player looks in `artworks/` beside the executable on each launch. Add a compatible package there, or move one out to remove it from the library, then relaunch. Titles come from the packages and appear in filename order. Any compatible collection works, including an empty folder.
+## Find your way around
 
-## Inside an artwork
+- Click a title, or press `[` and `]` to move between works. **F** fills the window with the artwork. The exit hint fades as you watch. Move the pointer or use a playback key to reveal it. **F** or **Escape** returns to the regular view. **R** restarts the piece.
+- Drag the library’s right edge to give long titles more room. Drag it to the left edge to hide the library. **Tab** opens or closes it. Drag the divider below the timeline to give the source more room.
+- Open **Controls** for the keyboard shortcuts, timeline gestures and file drop. **F1** also opens it in Art view. **T** switches between the Lab and IDE themes. IDE gives the viewer a black background and changes the source text colors.
+- For pieces with sound, use the Windows output device and volume controls.
 
-A frame is one picture made from a rectangular grid. Each cell stores a character and its ink color. The Go player uses Ebitengine to draw Braille dots and fractional blocks directly and JetBrains Mono for ordinary text. It updates changed cells and fits the grid to the window while keeping the cell proportions. A silent piece advances with elapsed time. A sounding piece uses the position in its audio track to select the picture and source annotation. The source listing is readable text and is never executed.
+## Open another artwork
+
+Drop a local `.rwl` onto the window. The player reads the file where you dropped it from and remembers its path until you quit. If you select that title again, the player reads the same file again. To keep a work in the library across launches, copy it into `artworks/` beside the executable. The player scans that folder in filename order at startup. The showcase contains the four works listed below.
+
+You can also open a file from PowerShell. After building from the repository, try this from the `player/` folder:
+
+```powershell
+.\LabPlayer.exe ..\long-way-round\long-way-round.rwl
+```
+
+## How the player keeps time
+
+A frame is a grid of characters. Each cell holds one character and its ink color. In [main.go](main.go), `paint` compares the current frame with the last one and redraws the cells that changed. The player draws Braille dots and fractional blocks directly. It uses the bundled JetBrains Mono font for ordinary text.
+
+For a silent work, elapsed time determines which frame to draw. For a work with music, the audio position supplies that time. Read `seekFrame` in [transport.go](transport.go) to see how the player finds the first audio sample in a frame. Then look at `activeMarker` in [ui.go](ui.go) to see how the frame number selects the passage to highlight. The player displays the packaged source as text. Playback runs offline, and the player keeps the library additions and viewing preferences in memory.
 
 ## Make your first artwork
 
@@ -35,7 +52,7 @@ Try the [two-frame recipe and package reference](PACKAGES.md), or explore one of
 
 ## Build and share
 
-For a Windows x64 build, install the Go toolchain specified in [go.mod](go.mod). From the repository root, run these PowerShell commands. The first build downloads the Go modules.
+For a Windows x64 build, install the Go toolchain specified in [go.mod](go.mod). The player uses Ebitengine v2.10.6 for the window, graphics, input and audio. The Go image library (golang.org/x/image v0.48.0) loads the font and draws text. Go downloads missing modules into its cache. From the repository root, run these commands in Windows PowerShell to test the player and write the executable to player/LabPlayer.exe.
 
 ```powershell
 cd player
@@ -48,4 +65,8 @@ go build -trimpath -ldflags "-s -w -H windowsgui" -o LabPlayer.exe .
 
 For a portable distribution, put the executable beside `artworks/`, the [notices](notices/) folder, and the repository [MIT license](../LICENSE). Include the packages you wish to share, then ZIP that folder's contents. Windows x64 is the supported release target; playback needs a working graphics backend and audio output for sounding pieces.
 
-Contributions are welcome through a pull request. Give each new Lab experiment its own top-level directory alongside these four. For artwork, include the original source, regeneration instructions, its package, and the notices for any material you distribute. For a player change, explain what the viewer or author can now do and check playback with an existing silent and sounding package.
+Discuss changes to the player with the maintainer before submitting them. In a pull request, explain what changed, how to try it, what the viewer should see or hear, and what you tested. For playback changes, try both a silent piece and a piece with sound. The [contribution guide](../CONTRIBUTING.md) describes review and distribution permissions.
+
+Viewing controls, library and themes
+
+Made with: GPT-6 (OpenAI), using Codex

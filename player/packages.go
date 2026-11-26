@@ -143,8 +143,16 @@ func readPackage(path string) (loaded, error) {
 	}
 	return out, nil
 }
-func discover(dir string) (skipped int) {
-	entries, _ := os.ReadDir(dir)
+func discover(dir string) (skipped int, err error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		// Windows can report a missing path when an ordinary file occupies
+		// the directory's location.
+		if st, statErr := os.Stat(dir); statErr == nil && !st.IsDir() {
+			return 0, fmt.Errorf("%s is not a directory", dir)
+		}
+		return 0, err
+	}
 	for _, f := range entries {
 		if !strings.EqualFold(filepath.Ext(f.Name()), ".rwl") {
 			continue
