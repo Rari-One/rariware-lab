@@ -8,7 +8,7 @@ Some pieces are quiet. Some move. Some are useful for absolutely nothing. That's
 
 Python, ASCII, and Unicode are recurring materials here, not the limits of what can be explored. An experiment can be a few lines long or an elaborate standalone program. It doesn't need to become a product, solve a problem, or fit a theme.
 
-[Lab Player](player/README.md) plays local artwork on Windows and lets you browse the source behind each piece.
+[Lab Player](player/README.md) plays local artwork on Windows and Linux (x64) and lets you browse the source behind each piece.
 
 ## Explore
 

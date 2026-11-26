@@ -1,14 +1,36 @@
 # RariWare Lab Player
 
-Watch a swallow lift off carbon paper, hear a moon cross a galaxy, or open an experiment of your own. Lab Player is a portable Windows x64 application. Each artwork brings its own pictures, timing and optional music in a single `.rwl` file. Everything plays offline.
+Watch a swallow lift off carbon paper, hear a moon cross a galaxy, or open an experiment of your own. Lab Player is a portable application for Windows x64 and Linux x64. Each artwork brings its own pictures, timing and optional music in a single `.rwl` file. Everything plays offline.
 
 ## Open the player
 
-1. Visit the [official RariWare Lab releases](https://github.com/Rari-One/rariware-lab/releases). When a player release is available, download its Windows x64 showcase ZIP from **Assets**. The GitHub source-code ZIP contains the files for building the application.
-2. To check the download, open PowerShell in your Downloads folder and run `Get-FileHash .\LabPlayer-Showcase-Collection-x64.zip -Algorithm SHA256`. Compare the result with the checksum on the release page.
-3. Choose **Extract All** in File Explorer. Keep the extracted folder together and open **LabPlayer.exe**. Playback requires no installer, development tools or separate language runtime.
+Download the archive for your operating system and `SHA256SUMS.txt` from the same [official Lab Player release](https://github.com/Rari-One/rariware-lab/releases). Each archive contains the player and four artworks. The source archives are for building from code.
 
-The executable is unsigned. Windows may display an unfamiliar-publisher warning. Download only from the official repository release and decide whether you trust the download before opening it.
+### Windows x64
+
+1. Download `LabPlayer-Showcase-Collection-windows-x64.zip`. In PowerShell, open the download folder and run `Get-FileHash .\LabPlayer-Showcase-Collection-windows-x64.zip -Algorithm SHA256`. Compare the full hash with the Windows entry in `SHA256SUMS.txt`. Continue when they match.
+2. In File Explorer, choose **Extract All**. Open the extracted collection folder and double-click **LabPlayer.exe**. Keep the executable and its `artworks/` folder together.
+3. The executable is unsigned. If Windows SmartScreen displays an unfamiliar-publisher warning, **More info** shows the program details. Choose **Run anyway** only if you trust the download.
+
+### Linux x64
+
+Download `LabPlayer-Showcase-Collection-linux-x64.tar.gz`. From a terminal in the download folder, run:
+
+```sh
+sha256sum --ignore-missing -c SHA256SUMS.txt
+```
+
+Look for `LabPlayer-Showcase-Collection-linux-x64.tar.gz: OK` before extracting and launching:
+
+```sh
+tar -xzf LabPlayer-Showcase-Collection-linux-x64.tar.gz
+cd LabPlayer-Showcase-Collection-linux-x64
+./lab-player
+```
+
+The archive preserves execute permission. If a file manager loses it while copying the folder, run `chmod +x lab-player` in the extracted folder. The portable player can launch directly. The optional desktop entry and application icons are in `branding/` for desktop packagers.
+
+**Linux compatibility.** Use a glibc-based x86-64 desktop with OpenGL graphics and an X11 display. XWayland is expected to provide the display on Wayland desktops. For sound, use PulseAudio or PipeWire with PulseAudio compatibility. Earlier Linux playback tests used Ubuntu 24.04 with a virtual X11 display and a PulseAudio virtual output. Physical desktop launcher icons, PipeWire playback and Wayland configurations still need direct testing. ALSA-only audio is unverified. The executable imports unversioned glibc symbols. A minimum working glibc version has not been established.
 
 ## Follow a drawing back to its source
 
@@ -21,7 +43,7 @@ Each tick marks a passage the artist chose. Drag the timeline to preview frames 
 - Click a title, or press `[` and `]` to move between works. **F** fills the window with the artwork. The exit hint fades as you watch. Move the pointer or use a playback key to reveal it. **F** or **Escape** returns to the regular view. **R** restarts the piece.
 - Drag the library’s right edge to give long titles more room. Drag it to the left edge to hide the library. **Tab** opens or closes it. Drag the divider below the timeline to give the source more room.
 - Open **Controls** for the keyboard shortcuts, timeline gestures and file drop. **F1** also opens it in Art view. **T** switches between the Lab and IDE themes. IDE gives the viewer a black background and changes the source text colors.
-- For pieces with sound, use the Windows output device and volume controls.
+- For pieces with sound, use your system’s sound output and volume controls.
 
 ## Open another artwork
 
@@ -32,6 +54,8 @@ You can also open a file from PowerShell. After building from the repository, tr
 ```powershell
 .\LabPlayer.exe ..\long-way-round\long-way-round.rwl
 ```
+
+On Linux, the equivalent command from that folder is `./lab-player ../long-way-round/long-way-round.rwl`.
 
 ## How the player keeps time
 
@@ -56,6 +80,7 @@ For a Windows x64 build, install the Go toolchain specified in [go.mod](go.mod).
 
 ```powershell
 cd player
+$env:GOOS = "windows"
 $env:GOARCH = "amd64"
 $env:CGO_ENABLED = "0"
 go generate .
@@ -64,7 +89,16 @@ go build -trimpath -ldflags "-s -w -H windowsgui" -o LabPlayer.exe .
 .\LabPlayer.exe
 ```
 
-For a portable distribution, put the executable beside `artworks/`, the [notices](notices/) folder, and the repository [MIT license](../LICENSE). Include the packages you wish to share, then ZIP that folder's contents. Windows x64 is the supported release target; playback needs a working graphics backend and audio output for sounding pieces.
+On a Linux x64 build machine with the same Go toolchain, run these commands from the repository root:
+
+```sh
+cd player
+CGO_ENABLED=0 go test ./...
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o lab-player .
+./lab-player
+```
+
+For a portable distribution, put the executable, `artworks/`, the [dependency notices](notices/), the [MIT license](../LICENSE) and the platform’s branding assets in one collection folder. Use a ZIP for Windows and a gzip-compressed tar archive for Linux, with the Linux executable set to mode 0755.
 
 The [identity assets](identity/README.md) include the SVG masters, Linux desktop icon and instructions for regenerating the artwork.
 

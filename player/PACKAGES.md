@@ -1,6 +1,6 @@
 # Lab Player packages
 
-Extract the whole portable release. To try a package once, drop its `.rwl` file onto the open player. To include it every time you launch the player, put it in `artworks/` beside `LabPlayer.exe`. At startup the library lists accepted packages in filename order and shows how many files it skipped.
+Extract the whole portable release. To try a package once, drop its `.rwl` file onto the open player. To include it every time you launch the player, put it in `artworks/` beside the player executable. At startup the library lists accepted packages in filename order and shows how many files it skipped.
 
 ## Your first two frames
 
