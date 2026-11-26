@@ -1,10 +1,10 @@
 # Lab Player packages
 
-Unzip the entire portable release. Keep artworks/ next to LabPlayer.exe. Drop a .rwl file there and relaunch. The library lists package titles in filename order. Scroll the library to reach more entries. Invalid packages increment the skipped count.
+Extract the whole portable release. To try a package once, drop its `.rwl` file onto the open player. To include it every time you launch the player, put it in `artworks/` beside `LabPlayer.exe`. At startup the library lists accepted packages in filename order and shows how many files it skipped.
 
 ## Your first two frames
 
-From `player/`, save this as `first_art.py` and run `python first_art.py` with Python 3.10 or newer. Relaunch the player and choose **Passing light**. One amber light moves between two positions each second. Change the two strings or the RGB values to give it a different rhythm or color.
+From `player/`, save this as `first_art.py` and run `python first_art.py` with Python 3.10 or newer. The script uses the Python standard library. It reads its own source and writes `artworks/passing-light.rwl`, replacing that file if it exists. Drop the result onto the player to open **Passing light**. One amber light moves between two positions each second. Change the two strings or the RGB values to give it a different rhythm or color.
 
 ```python
 import json
@@ -66,7 +66,7 @@ Example manifest for a two-frame piece with a source annotation:
 
 Write frames in playback order. Each cell occupies exactly five bytes: a little-endian unsigned 16-bit Unicode character followed by red, green and blue bytes (0–255). Walk left to right, top to bottom, with no row separators or padding. For a space in white, write 20 00 FF FF FF in hex. Use single-cell printable BMP characters. Braille and fractional blocks have dedicated drawing rules; other characters use the bundled JetBrains Mono face. Each cell has a 9:18 aspect ratio. The player loops frames at the declared FPS.
 
-List source files in desired browsing order under source/. Include applicable notices. Markers are optional editorial annotations. Each marker begins at its zero-based frame and stays active up to the next marker or loop end. Use strictly increasing frame numbers, exact listed source paths, and one-based line numbers. Follow starts off. When enabled, the viewer selects the marked file and highlights the line. Scrolling or switching files returns to manual browsing. Markers describe the artwork; package code is only displayed.
+List source files in desired browsing order under source/. Include applicable notices. Markers are optional editorial annotations. Each marker begins at its zero-based frame and stays active up to the next marker or loop end. Use strictly increasing frame numbers, exact listed source paths, and one-based line numbers. For a work with markers, Follow starts on. Click a timeline tick to see the frame and source line together. Scrolling the source or switching files returns you to manual browsing. The player displays the source as text.
 
 ## Limits in version 1
 
