@@ -28,6 +28,8 @@ type view struct {
 	libraryDir                                string
 	libraryErr                                error
 	scrubbing, resumeAfterScrub               bool
+	artHintUntil, statusUntil                 time.Time
+	pointerX, pointerY                        int
 	scrubX                                    int
 	navWidth, cardWidth, cardHeight           int
 	cards                                     []libraryCard
@@ -41,12 +43,12 @@ func (g *player) selectPiece(i int) error {
 func (g *player) loadPiece(i int, path string) error {
 	p, err := readPackage(path)
 	if err != nil {
-		g.status = "Could not open " + filepath.Base(path)
+		g.showError("Could not open " + filepath.Base(path))
 		return err
 	}
 	next, err := openTrack(p.pcm)
 	if err != nil {
-		g.status = "Audio unavailable for " + filepath.Base(path)
+		g.showError("Audio unavailable for " + filepath.Base(path))
 		return err
 	}
 	g.stopTrack()
@@ -136,10 +138,43 @@ func (g *player) sourceScroll(delta int) {
 	g.follow = false
 	g.line = max(0, min(len(g.lines[g.file])-1, g.line+delta))
 }
+
+// The hint uses wall time so it also fades while playback is paused.
+func hintAlpha(now, until time.Time) uint8 {
+	const fade = 500 * time.Millisecond
+	remaining := until.Sub(now)
+	if remaining <= 0 {
+		return 0
+	}
+	if remaining >= fade {
+		return 255
+	}
+	return uint8(remaining * 255 / fade)
+}
+
+func (g *player) artInput(now time.Time, x, y int, activity bool) {
+	if activity || x != g.pointerX || y != g.pointerY {
+		g.artHintUntil = now.Add(2500 * time.Millisecond)
+	}
+	g.pointerX, g.pointerY = x, y
+}
+
+func (g *player) artExitHit(now time.Time, x, y int) bool {
+	return g.full && hintAlpha(now, g.artHintUntil) > 0 && x >= g.w-90 && x < g.w && y >= 0 && y < 36
+}
+
 func (g *player) Update() error {
 	x, y := e.CursorPosition()
 	click := inpututil.IsMouseButtonJustPressed(e.MouseButtonLeft)
 	key := inpututil.IsKeyJustPressed
+	now := time.Now()
+	// Test the previous hint before movement can reveal it on this same click.
+	exitClick := click && g.artExitHit(now, x, y)
+	if g.full {
+		playbackKey := key(e.KeySpace) || key(e.KeyR) || key(e.KeyBracketLeft) || key(e.KeyBracketRight)
+		stepKey := g.paused && (key(e.KeyComma) || key(e.KeyPeriod))
+		g.artInput(now, x, y, playbackKey || stepKey || key(e.KeyT) || key(e.KeyF1) || key(e.KeyEscape))
+	}
 	if files := e.DroppedFiles(); files != nil {
 		g.openDrop(files)
 	}
@@ -177,10 +212,13 @@ func (g *player) Update() error {
 	} else if key(e.KeyBracketRight) {
 		g.moveWork(1)
 	}
-	if key(e.KeyF) || key(e.KeyEscape) && g.full || click && ((!g.full && y < 36 && x >= 320 && x < 460) || (g.full && x >= g.w-90 && y < 36)) {
+	if key(e.KeyF) || key(e.KeyEscape) && g.full || exitClick || click && !g.full && y < 36 && x >= 320 && x < 460 {
 		g.dragging = false
 		e.SetCursorShape(e.CursorShapeDefault)
 		g.full = !g.full
+		if g.full {
+			g.artInput(now, x, y, true)
+		}
 		return nil
 	}
 	if !g.full && (key(e.KeyTab) || click && y < 36 && x < 100) {
@@ -326,7 +364,11 @@ func (g *player) Draw(s *e.Image) {
 		top = 0
 		bottom = g.h
 	}
-	if g.tex != nil {
+	if !g.full && g.status != "" {
+		// Reserve space for the message above the artwork, even with the library closed.
+		top += g.drawMessage(s, g.status, left+10, top+16, g.w-left-20)
+	}
+	if g.tex != nil && bottom > top {
 		g.paint()
 		p := pieces[g.id]
 		aw, ah := float64(p.w*9), float64(p.h*18)
@@ -337,8 +379,13 @@ func (g *player) Draw(s *e.Image) {
 		s.DrawImage(g.tex, op)
 	}
 	if g.full {
-		label(g.w-80, 22, "[Exit F]", accent)
-		g.drawMessage(s, g.status, 8, 24, g.w-110)
+		now := time.Now()
+		if a := hintAlpha(now, g.artHintUntil); a > 0 {
+			label(g.w-80, 22, "[Exit F]", color.NRGBA{accent.R, accent.G, accent.B, a})
+		}
+		if now.Before(g.statusUntil) {
+			g.drawMessage(s, g.status, 8, 24, g.w-110)
+		}
 		return
 	}
 	button := "[Pause]"
@@ -349,7 +396,7 @@ func (g *player) Draw(s *e.Image) {
 	label(110, 24, button, accent)
 	label(220, 24, "[Restart]", accent)
 	label(330, 24, "[Art view F]", accent)
-	label(460, 24, "[Keys]", accent)
+	label(460, 24, "Controls", accent)
 	theme := "[Theme Lab]"
 	if g.ide {
 		theme = "[Theme IDE]"
@@ -358,7 +405,6 @@ func (g *player) Draw(s *e.Image) {
 	if g.nav {
 		g.drawLibrary(s)
 	}
-	g.drawMessage(s, g.libraryStatus(), left+10, top+20, g.w-left-20)
 	if g.tex == nil {
 		g.drawMessage(s, g.emptyMessage(), left+10, top+120, g.w-left-20)
 		return

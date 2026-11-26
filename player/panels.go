@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"strings"
@@ -99,7 +100,15 @@ func (g *player) drawLibrary(s *e.Image) {
 	g.layoutCards()
 	p := g.colors()
 	w := g.left()
-	text.Draw(s, "ARTWORKS", g.face, 12, 55, p.ink)
+	heading := "ARTWORKS"
+	if g.skipped > 0 {
+		count := fmt.Sprintf("%d skipped", g.skipped)
+		heading += "  " + count
+		if len(heading)*9 > w-20 {
+			heading = count
+		}
+	}
+	text.Draw(s, heading, g.face, 12, 55, p.ink)
 	list := s.SubImage(image.Rect(0, cardsTop, w-5, g.h)).(*e.Image)
 	for i, c := range g.cards {
 		y := cardsTop + c.top - g.offset
@@ -130,7 +139,8 @@ var shortcuts = [][2]string{
 	{"Space", "Pause or resume"}, {"R", "Restart work"}, {"[  /  ]", "Previous / next work"},
 	{",  /  .", "Step one frame while paused"}, {"F  /  Esc", "Toggle Art view / leave Art view"},
 	{"Tab", "Hide or show library"}, {"Up / Down", "Scroll source one line"}, {"Page Up / Down", "Scroll source one page"},
-	{"Left / Right", "Scroll source horizontally"}, {"T", "Switch Lab / IDE theme"}, {"F1  /  Esc", "Toggle shortcuts / close guide"},
+	{"Left / Right", "Scroll source horizontally"}, {"T", "Switch Lab / IDE theme"}, {"F1  /  Esc", "Toggle controls / close guide"},
+	{"Click tick / drag", "Jump to a marker / seek"}, {"Drop a .rwl", "Open a work for this session"},
 }
 
 func (g *player) drawShortcuts(s *e.Image) {
@@ -139,7 +149,7 @@ func (g *player) drawShortcuts(s *e.Image) {
 	x, y := (g.w-w)/2, (g.h-h)/2
 	vector.DrawFilledRect(s, float32(x), float32(y), float32(w), float32(h), p.divider, false)
 	vector.DrawFilledRect(s, float32(x+1), float32(y+1), float32(w-2), float32(h-2), p.panel, false)
-	text.Draw(s, "Keyboard shortcuts", g.face, x+20, y+30, p.ink)
+	text.Draw(s, "Controls", g.face, x+20, y+30, p.ink)
 	text.Draw(s, "[Close]", g.face, x+w-84, y+30, p.accent)
 	for i, row := range shortcuts {
 		base := y + 66 + i*24

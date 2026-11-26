@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func withLibrary(t *testing.T) {
@@ -13,6 +14,34 @@ func withLibrary(t *testing.T) {
 	old := pieces
 	pieces = nil
 	t.Cleanup(func() { pieces = old })
+}
+
+func TestArtHintFadesAndReveals(t *testing.T) {
+	g := player{view: view{full: true, w: 640}}
+	start := time.Unix(100, 0)
+	g.artInput(start, 600, 15, true)
+	for _, tc := range []struct {
+		elapsed time.Duration
+		alpha   uint8
+	}{
+		{0, 255}, {2 * time.Second, 255}, {2250 * time.Millisecond, 127}, {2500 * time.Millisecond, 0},
+	} {
+		now := start.Add(tc.elapsed)
+		g.artInput(now, 600, 15, false)
+		if alpha := hintAlpha(now, g.artHintUntil); alpha != tc.alpha || g.artExitHit(now, 600, 15) != (tc.alpha > 0) {
+			t.Fatalf("at %v: alpha %d, exit active %t", tc.elapsed, alpha, g.artExitHit(now, 600, 15))
+		}
+	}
+	now := start.Add(3 * time.Second)
+	g.artInput(now, 601, 15, false)
+	if !g.artExitHit(now, 601, 15) || g.artExitHit(now, 40, 15) {
+		t.Fatal("mouse reveal or exit bounds")
+	}
+	now = now.Add(3 * time.Second)
+	g.artInput(now, 601, 15, true)
+	if hintAlpha(now, g.artHintUntil) != 255 {
+		t.Fatal("key did not reveal hint")
+	}
 }
 
 func TestLibraryCardLayout(t *testing.T) {
@@ -114,9 +143,19 @@ func TestSessionOpeningAndNavigation(t *testing.T) {
 	}
 	g := player{view: view{w: 640, h: 420, nav: true}}
 	defer g.stopTrack()
-	if err := g.selectPiece(0); err != nil {
-		t.Fatal(err)
+	for _, delta := range []int{-1, 1} {
+		empty := player{}
+		empty.moveWork(delta)
+		want := 0
+		if delta < 0 {
+			want = len(pieces) - 1
+		}
+		empty.stopTrack()
+		if empty.tex == nil || empty.id != want {
+			t.Fatalf("no selection, direction %d: got %d, want %d", delta, empty.id, want)
+		}
 	}
+	g.moveWork(1)
 	g.full = true
 	for _, want := range []int{3, 2, 1, 0} {
 		g.moveWork(-1)

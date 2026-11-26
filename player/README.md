@@ -18,9 +18,9 @@ Each tick marks a passage the artist chose. Drag the timeline to preview frames 
 
 ## Find your way around
 
-- Click a title, or press `[` and `]` to move between works. **F** fills the window with the artwork. **Escape** returns to the library view. **R** restarts the piece.
+- Click a title, or press `[` and `]` to move between works. **F** fills the window with the artwork. The exit hint fades as you watch. Move the pointer or use a playback key to reveal it. **F** or **Escape** returns to the regular view. **R** restarts the piece.
 - Drag the library’s right edge to give long titles more room. Drag it to the left edge to hide the library. **Tab** opens or closes it. Drag the divider below the timeline to give the source more room.
-- Open **Keys** for the full shortcut list. **F1** also opens it in Art view. **T** switches between the Lab and IDE themes. IDE gives the viewer a black background and changes the source text colors.
+- Open **Controls** for the keyboard shortcuts, timeline gestures and file drop. **F1** also opens it in Art view. **T** switches between the Lab and IDE themes. IDE gives the viewer a black background and changes the source text colors.
 - For pieces with sound, use the Windows output device and volume controls.
 
 ## Open another artwork

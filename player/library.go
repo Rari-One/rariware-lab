@@ -2,11 +2,11 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	e "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
@@ -16,7 +16,7 @@ import (
 func (g *player) openPath(path string) {
 	abs, err := filepath.Abs(path)
 	if err != nil || !strings.EqualFold(filepath.Ext(path), ".rwl") {
-		g.status = "Choose a .rwl artwork file: " + filepath.Base(path)
+		g.showError("Choose a .rwl artwork file: " + filepath.Base(path))
 		return
 	}
 	for i, p := range pieces {
@@ -26,7 +26,7 @@ func (g *player) openPath(path string) {
 		}
 	}
 	if len(pieces) >= 128 {
-		g.status = "Library is full. Could not open " + filepath.Base(path)
+		g.showError("Library is full. Could not open " + filepath.Base(path))
 		return
 	}
 	g.loadPiece(len(pieces), abs)
@@ -35,13 +35,13 @@ func (g *player) openPath(path string) {
 func (g *player) openDrop(files fs.FS) {
 	entries, err := fs.ReadDir(files, ".")
 	if err != nil || len(entries) != 1 {
-		g.status = "Drop one .rwl artwork at a time."
+		g.showError("Drop one .rwl artwork at a time.")
 		return
 	}
 	entry := entries[0]
 	path, ok := entry.(e.AbsPather)
 	if !ok || entry.IsDir() {
-		g.status = "Choose a .rwl artwork file: " + entry.Name()
+		g.showError("Choose a .rwl artwork file: " + entry.Name())
 		return
 	}
 	g.openPath(path.AbsPath())
@@ -49,6 +49,14 @@ func (g *player) openDrop(files fs.FS) {
 
 func (g *player) moveWork(delta int) {
 	if len(pieces) == 0 || len(pieces) == 1 && g.tex != nil {
+		return
+	}
+	if g.tex == nil {
+		i := 0
+		if delta < 0 {
+			i = len(pieces) - 1
+		}
+		g.selectPiece(i)
 		return
 	}
 	g.selectPiece((g.id + delta + len(pieces)) % len(pieces))
@@ -69,14 +77,13 @@ func (g *player) emptyMessage() string {
 	}
 }
 
-func (g *player) libraryStatus() string {
-	if g.skipped == 0 {
-		return g.status
-	}
-	return strings.TrimSpace(fmt.Sprintf("%d skipped  %s", g.skipped, g.status))
+func (g *player) showError(message string) {
+	g.status = message
+	g.statusUntil = time.Now().Add(3 * time.Second)
 }
 
-func (g *player) drawMessage(s *e.Image, message string, x, y, width int) {
+func (g *player) drawMessage(s *e.Image, message string, x, y, width int) int {
+	startY := y
 	advance, _ := g.face.GlyphAdvance('0')
 	cols := max(1, width/max(1, advance.Ceil()))
 	for _, line := range wrapText(message, cols) {
@@ -84,6 +91,7 @@ func (g *player) drawMessage(s *e.Image, message string, x, y, width int) {
 		text.Draw(s, line, g.face, x, y, g.colors().ink)
 		y += 20
 	}
+	return y - startY
 }
 
 func wrapText(message string, cols int) []string {
