@@ -105,14 +105,22 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	g.skipped = discover(filepath.Join(filepath.Dir(exe), "artworks"))
+	g.libraryDir = filepath.Join(filepath.Dir(exe), "artworks")
+	g.skipped, g.libraryErr = discover(g.libraryDir)
 	defer g.stopTrack()
 	g.nav = true
 	e.SetWindowTitle("RariWare Lab Player")
 	e.SetWindowSize(1180, 860)
 	e.SetWindowResizingMode(e.WindowResizingModeEnabled)
-	if len(pieces) > 0 {
+	if len(os.Args) > 1 {
+		g.openPath(os.Args[1])
+	}
+	if g.tex == nil && len(pieces) > 0 {
+		openError := g.status
 		g.selectPiece(0)
+		if openError != "" {
+			g.status = openError
+		}
 	}
 	if err = e.RunGame(&g); err != nil {
 		panic(err)
