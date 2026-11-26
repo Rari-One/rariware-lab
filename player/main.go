@@ -109,6 +109,7 @@ func main() {
 	g.skipped, g.libraryErr = discover(g.libraryDir)
 	defer g.stopTrack()
 	g.nav = true
+	setWindowIcon()
 	e.SetWindowTitle("RariWare Lab Player")
 	e.SetWindowSize(1180, 860)
 	e.SetWindowResizingMode(e.WindowResizingModeEnabled)
@@ -122,7 +123,7 @@ func main() {
 			g.status = openError
 		}
 	}
-	if err = e.RunGame(&g); err != nil {
+	if err = e.RunGameWithOptions(&g, &e.RunGameOptions{X11ClassName: "lab-player", X11InstanceName: "lab-player"}); err != nil {
 		panic(err)
 	}
 }

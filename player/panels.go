@@ -109,6 +109,15 @@ func (g *player) drawLibrary(s *e.Image) {
 		}
 	}
 	text.Draw(s, heading, g.face, 12, 55, p.ink)
+	if 12+len(heading)*9 <= w-36 {
+		mark := labMark
+		if g.ide {
+			mark = ideMark
+		}
+		op := &e.DrawImageOptions{}
+		op.GeoM.Translate(float64(w-32), 36)
+		s.DrawImage(mark, op)
+	}
 	list := s.SubImage(image.Rect(0, cardsTop, w-5, g.h)).(*e.Image)
 	for i, c := range g.cards {
 		y := cardsTop + c.top - g.offset

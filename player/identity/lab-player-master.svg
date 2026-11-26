@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title">
+  <title id="title">Lab Player — Cellular Play</title>
+  <!-- Flat master. Recolor the two groups for alternate themes. -->
+  <g id="cells" fill="#A5A0F5">
+    <rect x="23" y="4" width="16" height="16" rx="1.5"/>
+    <rect x="23" y="23" width="16" height="16" rx="1.5"/>
+    <rect x="42" y="23" width="16" height="16" rx="1.5"/>
+    <rect x="23" y="42" width="16" height="16" rx="1.5"/>
+    <rect x="42" y="42" width="16" height="16" rx="1.5"/>
+    <rect x="23" y="61" width="16" height="16" rx="1.5"/>
+    <rect x="42" y="61" width="16" height="16" rx="1.5"/>
+    <rect x="23" y="80" width="16" height="16" rx="1.5"/>
+  </g>
+  <g id="leading-cell" fill="#6DD9D0">
+    <rect x="61" y="42" width="16" height="16" rx="1.5"/>
+  </g>
+</svg>

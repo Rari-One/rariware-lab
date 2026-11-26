@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Lab Player
+Exec=lab-player %f
+Icon=lab-player
+StartupWMClass=lab-player
+Terminal=false
+Categories=AudioVideo;Player;
