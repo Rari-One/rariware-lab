@@ -22,3 +22,5 @@ midnight-watch/*.py -text diff
 midnight-watch/*.rwl binary
 flyway/*.py -text diff
 flyway/*.rwl binary
+night-carol/*.py -text diff
+night-carol/*.rwl binary
